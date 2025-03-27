@@ -9,7 +9,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("ESP32 BLE Reader")),
+      appBar: AppBar(title: const Text("ESP32 BLE Playground")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

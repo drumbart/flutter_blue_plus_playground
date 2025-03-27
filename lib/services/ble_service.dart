@@ -64,6 +64,6 @@ class BleService {
   }
 
   Future<void> disconnectFromDevice(BluetoothDevice device) async {
-    await device.disconnect();
+    return await device.disconnect();
   }
 }

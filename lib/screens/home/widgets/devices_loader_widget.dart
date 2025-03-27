@@ -8,6 +8,15 @@ class DevicesLoaderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<BleCubit>().state;
-    return state.isScanning ? const Center(child: CircularProgressIndicator()) : const SizedBox.shrink();
+    return state.isScanning
+        ? const Center(
+            child: Column(
+              children: [
+                LinearProgressIndicator(),
+                SizedBox(height: 16),
+              ],
+            ),
+          )
+        : const SizedBox.shrink();
   }
 }
