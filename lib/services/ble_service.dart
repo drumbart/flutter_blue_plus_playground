@@ -38,13 +38,13 @@ class BleService {
     FlutterBluePlus.stopScan();
   }
 
-  Future<BluetoothDevice?> connectToDevice(BluetoothDevice device) async {
+  Future<bool> connectToDevice(BluetoothDevice device) async {
     try {
       await device.connect();
-      return device;
+      return true;
     } catch (e) {
       print("Error connecting to device: $e");
-      return null;
+      return false;
     }
 
     // List<BluetoothService> services = await device.discoverServices();

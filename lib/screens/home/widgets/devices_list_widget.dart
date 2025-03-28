@@ -11,26 +11,22 @@ class DevicesListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = context.watch<DevicesCubit>().state;
-    return state.bleDevices.isEmpty
+    return state.allDevices.isEmpty
         ? const Center(child: Text("No devices found."))
         : ListView.builder(
-            itemCount: state.bleDevices.length,
+            itemCount: state.allDevices.length,
             itemBuilder: (context, index) {
-              final device = state.bleDevices[index];
+              final device = state.allDevices[index];
               return DeviceTileWidget(
                 title: device.displayName,
                 connectButtonText: state.isDeviceConnected(device) ? "Disconnect" : "Connect",
                 showConnectButton: device.isConnectable,
-                onTilePressed: () {
-                  if (device.isConnectable) {
-                    context.push(NavigationState.deviceScreen.route, extra: device);
-                  }
-                },
+                onTilePressed: () => context.push(NavigationState.deviceScreen.route, extra: device),
                 onConnectButtonPressed: () {
                   if (state.isDeviceConnected(device)) {
                     context.read<DevicesCubit>().disconnectFromDevice();
                   } else {
-                    context.read<DevicesCubit>().connectToDevice(device.scanResult.device);
+                    context.read<DevicesCubit>().connectToDevice(device);
                   }
                 },
               );

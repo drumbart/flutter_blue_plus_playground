@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_blue_plus_playground/blocs/devices/devices_state.dart';
 import 'package:flutter_blue_plus_playground/models/ble_device.dart';
 import 'package:flutter_blue_plus_playground/services/ble_service.dart';
@@ -42,13 +41,13 @@ class DevicesCubit extends Cubit<DevicesState> {
     bleService.stopScan();
   }
 
-  Future<void> connectToDevice(BluetoothDevice device) async {
-    final connected = await bleService.connectToDevice(device);
-    emit(state.copyWith(connectedDevice: connected));
+  Future<void> connectToDevice(BleDevice device) async {
+    final connected = await bleService.connectToDevice(device.scanResult.device);
+    emit(state.copyWith(connectedDevice: connected ? device : null));
   }
 
   Future<void> disconnectFromDevice() async {
-    await bleService.disconnectFromDevice(state.connectedDevice!);
+    await bleService.disconnectFromDevice(state.connectedDevice!.scanResult.device);
     emit(state.copyWith(connectedDevice: null));
   }
 }

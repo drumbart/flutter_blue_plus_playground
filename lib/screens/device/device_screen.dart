@@ -17,12 +17,13 @@ class DeviceScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(device.displayName),
         actions: [
+          if (device.isConnectable)
           ElevatedButton(
             onPressed: () {
               if (isConnected) {
                 context.read<DevicesCubit>().disconnectFromDevice();
               } else {
-                context.read<DevicesCubit>().connectToDevice(device.scanResult.device);
+                context.read<DevicesCubit>().connectToDevice(device);
               }
             },
             child: Text(isConnected ? 'Disconnect' : 'Connect'),
