@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue_plus_playground/models/ble_device.dart';
-import 'package:flutter_blue_plus_playground/blocs/ble_cubit.dart';
+import 'package:flutter_blue_plus_playground/blocs/devices/ble_devices_cubit.dart';
 
 class DeviceScreen extends StatelessWidget {
   final BleDevice device;
@@ -10,7 +10,7 @@ class DeviceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isConnected = context.select<BleCubit, bool>(
+    final isConnected = context.select<BleDevicesCubit, bool>(
       (cubit) => cubit.state.isDeviceConnected(device),
     );
     return Scaffold(
@@ -20,9 +20,9 @@ class DeviceScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               if (isConnected) {
-                context.read<BleCubit>().disconnectFromDevice();
+                context.read<BleDevicesCubit>().disconnectFromDevice();
               } else {
-                context.read<BleCubit>().connectToDevice(device.scanResult.device);
+                context.read<BleDevicesCubit>().connectToDevice(device.scanResult.device);
               }
             },
             child: Text(isConnected ? 'Disconnect' : 'Connect'),

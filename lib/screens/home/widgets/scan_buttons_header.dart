@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_blue_plus_playground/blocs/ble_cubit.dart';
+import 'package:flutter_blue_plus_playground/blocs/devices/ble_devices_cubit.dart';
 
 class ScanButtonsHeader extends StatelessWidget {
   const ScanButtonsHeader({super.key});
@@ -11,11 +11,11 @@ class ScanButtonsHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         ElevatedButton(
-          onPressed: () => context.read<BleCubit>().startScan(),
+          onPressed: () => context.read<BleDevicesCubit>().startScan(),
           child: const Text("Start Scan"),
         ),
         ElevatedButton(
-          onPressed: () => context.read<BleCubit>().stopScan(),
+          onPressed: () => context.read<BleDevicesCubit>().stopScan(),
           child: const Text("Stop Scan"),
         ),
       ],

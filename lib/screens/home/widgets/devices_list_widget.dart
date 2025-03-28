@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_blue_plus_playground/blocs/ble_cubit.dart';
+import 'package:flutter_blue_plus_playground/blocs/devices/ble_devices_cubit.dart';
 import 'package:flutter_blue_plus_playground/navigation/router.dart';
 import 'package:flutter_blue_plus_playground/screens/home/widgets/device_tile_widget.dart';
 import 'package:go_router/go_router.dart';
@@ -10,7 +10,7 @@ class DevicesListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<BleCubit>().state;
+    final state = context.watch<BleDevicesCubit>().state;
     return state.bleDevices.isEmpty
         ? const Center(child: Text("No devices found."))
         : ListView.builder(
@@ -28,9 +28,9 @@ class DevicesListWidget extends StatelessWidget {
                 },
                 onConnectButtonPressed: () {
                   if (state.isDeviceConnected(device)) {
-                    context.read<BleCubit>().disconnectFromDevice();
+                    context.read<BleDevicesCubit>().disconnectFromDevice();
                   } else {
-                    context.read<BleCubit>().connectToDevice(device.scanResult.device);
+                    context.read<BleDevicesCubit>().connectToDevice(device.scanResult.device);
                   }
                 },
               );

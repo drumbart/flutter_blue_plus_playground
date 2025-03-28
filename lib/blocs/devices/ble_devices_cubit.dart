@@ -1,13 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:flutter_blue_plus_playground/blocs/ble_state.dart';
+import 'package:flutter_blue_plus_playground/blocs/devices/ble_devices_state.dart';
 import 'package:flutter_blue_plus_playground/models/ble_device.dart';
 import 'package:flutter_blue_plus_playground/services/ble_service.dart';
 
-class BleCubit extends Cubit<BleState> {
+class BleDevicesCubit extends Cubit<BleDevicesState> {
   final BleService bleService;
 
-  BleCubit(this.bleService) : super(BleState()) {
+  BleDevicesCubit(this.bleService) : super(BleDevicesState()) {
     _listenForChanges();
   }
 
