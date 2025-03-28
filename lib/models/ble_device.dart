@@ -5,7 +5,7 @@ class BleDevice {
   final bool isConnectable;
 
   String get id => scanResult.device.remoteId.str;
-  String? get name => scanResult.device.platformName.isEmpty ? null : scanResult.device.platformName;
+  String get displayName => scanResult.device.platformName.isNotEmpty ? scanResult.device.platformName : id;
 
   BleDevice({required this.scanResult, required this.isConnectable});
 

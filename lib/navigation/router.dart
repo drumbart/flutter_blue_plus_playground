@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_blue_plus_playground/models/ble_device.dart';
 import 'package:flutter_blue_plus_playground/screens/device/device_screen.dart';
 import 'package:flutter_blue_plus_playground/screens/home/home_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -23,7 +24,7 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: NavigationState.deviceScreen.route,
-      builder: (_, __) => const DeviceScreen(),
+      builder: (_, state) => DeviceScreen(device: state.extra as BleDevice),
     ),
   ],
   redirect: (_, state) async {

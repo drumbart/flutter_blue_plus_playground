@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue_plus_playground/blocs/ble_cubit.dart';
+import 'package:flutter_blue_plus_playground/navigation/router.dart';
 import 'package:flutter_blue_plus_playground/screens/home/widgets/device_tile_widget.dart';
+import 'package:go_router/go_router.dart';
 
 class DevicesListWidget extends StatelessWidget {
   const DevicesListWidget({super.key});
@@ -16,10 +18,14 @@ class DevicesListWidget extends StatelessWidget {
             itemBuilder: (context, index) {
               final device = state.bleDevices[index];
               return DeviceTileWidget(
-                title: device.name ?? device.id,
+                title: device.displayName,
                 connectButtonText: state.isDeviceConnected(device) ? "Disconnect" : "Connect",
                 showConnectButton: device.isConnectable,
-                onTilePressed: () {},
+                onTilePressed: () {
+                  if (device.isConnectable) {
+                    context.push(NavigationState.deviceScreen.route, extra: device);
+                  }
+                },
                 onConnectButtonPressed: () {
                   if (state.isDeviceConnected(device)) {
                     context.read<BleCubit>().disconnectFromDevice();

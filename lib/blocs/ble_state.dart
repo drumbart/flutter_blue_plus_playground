@@ -6,9 +6,7 @@ class BleState {
   final List<BleDevice> bleDevices;
   final BluetoothDevice? connectedDevice;
 
-  bool isDeviceConnected(BleDevice device) {
-    return connectedDevice == null ? false : connectedDevice!.remoteId.str == device.id;
-  }
+  bool isDeviceConnected(BleDevice device) => connectedDevice == null ? false : connectedDevice!.remoteId.str == device.id;
 
   BleState({
     this.isScanning = false,

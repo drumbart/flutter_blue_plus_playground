@@ -22,8 +22,8 @@ class BleCubit extends Cubit<BleState> {
           state.copyWith(
             bleDevices: results.map((e) => BleDevice.fromScanResult(e)).toList()
               ..sort((a, b) {
-                if (a.name == "ESP32-BLE") return -1;
-                if (b.name == "ESP32-BLE") return 1;
+                if (a.displayName == "ESP32-BLE") return -1;
+                if (b.displayName == "ESP32-BLE") return 1;
                 return 0;
               }),
           ),
