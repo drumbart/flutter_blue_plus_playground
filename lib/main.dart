@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_blue_plus_playground/blocs/devices/ble_devices_cubit.dart';
+import 'package:flutter_blue_plus_playground/blocs/devices/devices_cubit.dart';
 import 'package:flutter_blue_plus_playground/navigation/router.dart';
 import 'package:flutter_blue_plus_playground/services/ble_service.dart';
 import 'package:flutter_blue_plus_playground/theme/theme.dart';
@@ -15,7 +15,7 @@ class BLEApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => BleDevicesCubit(BleService()),
+      create: (_) => DevicesCubit(BleService()),
       child: MaterialApp.router(
         theme: appTheme(),
         routerConfig: appRouter,
