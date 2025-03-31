@@ -2,15 +2,24 @@
 #include <BLEUtils.h>
 #include <BLEServer.h>
 
-#define SERVICE_UUID        "12345678-1234-5678-1234-56789abcdef0"  // Custom Service UUID
-#define CHARACTERISTIC_UUID "abcdef01-1234-5678-1234-56789abcdef0"  // Custom Characteristic UUID
+// Red = 0xFF0000
+#define RED_LED_CHAR_UUID    "ff000000-1234-5678-1234-56789abcdef0"
+// Green = 0x00FF00
+#define GREEN_LED_CHAR_UUID  "00ff0000-1234-5678-1234-56789abcdef0"
+// Yellow = 0xFFFF00
+#define YELLOW_LED_CHAR_UUID "ffff0000-1234-5678-1234-56789abcdef0"
 
 // Pins
 const int buttonPin = 4;
-const int ledPin = 5;
+const int redLedPin = 5;
+const int greenLedPin = 18;
+const int yellowLedPin = 19;
 
 // State variables
-bool ledState = false;
+bool redLedState = false;
+bool greenLedState = false;
+bool yellowLedState = false;
+
 bool lastButtonState = LOW;
 bool buttonPressed = false;
 
@@ -18,7 +27,10 @@ unsigned long lastDebounceTime = 0;
 const unsigned long debounceDelay = 50;
 
 // BLE
-BLECharacteristic *pCharacteristic;
+BLECharacteristic *pRedChar;
+BLECharacteristic* pGreenChar;
+BLECharacteristic* pYellowChar;
+
 bool deviceConnected = false;
 
 class MyServerCallbacks : public BLEServerCallbacks {
@@ -34,16 +46,17 @@ class MyServerCallbacks : public BLEServerCallbacks {
   }
 };
 
-class MyCallbacks : public BLECharacteristicCallbacks {
-  void onWrite(BLECharacteristic *pCharacteristic) {
+class LedWriteCallback : public BLECharacteristicCallbacks {
+  int pin;
+public:
+  LedWriteCallback(int assignedPin) : pin(assignedPin) {}
+
+  void onWrite(BLECharacteristic *pCharacteristic) override {
     String value = pCharacteristic->getValue();
-    if (value.length() > 0) {
-      if (value == "1" || value == "0") {
-        ledState = (value == "1");
-        digitalWrite(ledPin, ledState);
-        Serial.print("BLE wrote LED state: ");
-        Serial.println(ledState ? "ON" : "OFF");
-      }
+    if (value == "1" || value == "0") {
+      bool state = (value == "1");
+      digitalWrite(pin, state);
+      Serial.printf("BLE wrote to pin %d: %s\n", pin, state ? "ON" : "OFF");
     }
   }
 };
@@ -51,26 +64,38 @@ class MyCallbacks : public BLECharacteristicCallbacks {
 void setup() {
   Serial.begin(115200);
   pinMode(buttonPin, INPUT);
-  pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, ledState);
+  pinMode(redLedPin, OUTPUT);
+  digitalWrite(redLedPin, redLedState);
 
   // BLE setup
   BLEDevice::init("ESP32-BLE");
   BLEServer *pServer = BLEDevice::createServer();
   pServer->setCallbacks(new MyServerCallbacks());
 
-  BLEService *pService = pServer->createService(SERVICE_UUID);
-  pCharacteristic = pService->createCharacteristic(
-                      CHARACTERISTIC_UUID,
-                      BLECharacteristic::PROPERTY_READ |
-                      BLECharacteristic::PROPERTY_WRITE
-                    );
-  pCharacteristic->setCallbacks(new MyCallbacks());
+  BLEUUID serviceUUID = BLEUUID((uint16_t)0x180A);
+
+  BLEService *pService = pServer->createService(serviceUUID);
+  pRedChar = pService->createCharacteristic(
+    RED_LED_CHAR_UUID,
+    BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_NOTIFY
+  );
+  pGreenChar = pService->createCharacteristic(
+    GREEN_LED_CHAR_UUID,
+    BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_NOTIFY
+  );
+  pYellowChar = pService->createCharacteristic(
+    YELLOW_LED_CHAR_UUID,
+    BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_NOTIFY
+  );
+  
+  pRedChar->setCallbacks(new LedWriteCallback(redLedPin));
+  pGreenChar->setCallbacks(new LedWriteCallback(greenLedPin));
+  pYellowChar->setCallbacks(new LedWriteCallback(yellowLedPin));
 
   pService->start();
 
   BLEAdvertising *pAdvertising = BLEDevice::getAdvertising();
-  pAdvertising->addServiceUUID(SERVICE_UUID);
+  pAdvertising->addServiceUUID(serviceUUID);
   pAdvertising->setScanResponse(true);
   pAdvertising->setMinPreferred(0x06);  // Helps with connection stability
   BLEDevice::startAdvertising();
@@ -87,15 +112,15 @@ void loop() {
 
   if ((millis() - lastDebounceTime) > debounceDelay) {
     if (reading == HIGH && !buttonPressed) {
-      ledState = !ledState;
-      digitalWrite(ledPin, ledState);
+      redLedState = !redLedState;
+      digitalWrite(redLedPin, redLedState);
       Serial.print("Button pressed. LED toggled to: ");
-      Serial.println(ledState ? "ON" : "OFF");
+      Serial.println(redLedState ? "ON" : "OFF");
 
       buttonPressed = true;
 
-      pCharacteristic->setValue(ledState ? "1" : "0");
-      pCharacteristic->notify();
+      pRedChar->setValue(redLedState ? "1" : "0");
+      pRedChar->notify();
     } else if (reading == LOW) {
       buttonPressed = false;
     }

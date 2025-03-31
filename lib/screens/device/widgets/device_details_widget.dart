@@ -27,7 +27,7 @@ class DeviceDetailsWidget extends StatelessWidget {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: service.characteristics.map((characteristic) {
-                    final isLedChar = characteristic.uuid.toString().toLowerCase().contains("abcdef01");
+                    final isLedChar = characteristic.uuid.toString().toLowerCase().contains("redled01");
                     if (isLedChar) {
                       return StatefulBuilder(
                         builder: (context, setState) {

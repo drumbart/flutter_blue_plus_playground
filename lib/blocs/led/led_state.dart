@@ -1,24 +1,24 @@
-import 'package:flutter_blue_plus_playground/models/led.dart';
+import 'package:flutter_blue_plus_playground/enums/led_color.dart';
 
 class LEDState {
-  final LED led;
+  final LEDColor ledColor;
   final bool isOn;
 
-  LEDState({required this.led, required this.isOn});
+  LEDState({required this.ledColor, required this.isOn});
 
-  LEDState copyWith({LED? led, bool? isOn}) {
+  LEDState copyWith({LEDColor? ledColor, bool? isOn}) {
     return LEDState(
-      led: led ?? this.led,
+      ledColor: ledColor ?? this.ledColor,
       isOn: isOn ?? this.isOn,
     );
   }
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || other is LEDState && runtimeType == other.runtimeType && led == other.led && isOn == other.isOn;
+      identical(this, other) || other is LEDState && runtimeType == other.runtimeType && ledColor == other.ledColor && isOn == other.isOn;
 
   @override
-  int get hashCode => led.hashCode ^ isOn.hashCode;
+  int get hashCode => ledColor.hashCode ^ isOn.hashCode;
 
   @override
   String toString() {
