@@ -1,9 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue_plus_playground/blocs/led/led_state.dart';
-import 'package:flutter_blue_plus_playground/enums/led_color.dart';
 
 class LEDCubit extends Cubit<LEDState> {
-  LEDCubit() : super(LEDState(ledColor: LEDColor.red, isOn: false));
+  final LEDState initialState;
+
+  LEDCubit(this.initialState) : super(initialState);
 
   void setLedState(bool isOn) {
     emit(state.copyWith(isOn: isOn));

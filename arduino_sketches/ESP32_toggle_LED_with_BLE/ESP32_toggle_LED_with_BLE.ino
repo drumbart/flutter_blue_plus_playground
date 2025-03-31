@@ -2,11 +2,8 @@
 #include <BLEUtils.h>
 #include <BLEServer.h>
 
-// Red = 0xFF0000
 #define RED_LED_CHAR_UUID    "ff000000-1234-5678-1234-56789abcdef0"
-// Green = 0x00FF00
 #define GREEN_LED_CHAR_UUID  "00ff0000-1234-5678-1234-56789abcdef0"
-// Yellow = 0xFFFF00
 #define YELLOW_LED_CHAR_UUID "ffff0000-1234-5678-1234-56789abcdef0"
 
 // Pins
