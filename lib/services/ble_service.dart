@@ -46,21 +46,6 @@ class BleService {
       print("Error connecting to device: $e");
       return false;
     }
-
-    // List<BluetoothService> services = await device.discoverServices();
-    // for (BluetoothService service in services) {
-    //   if (service.uuid.toString().toLowerCase().contains("12345678")) {
-    //     for (BluetoothCharacteristic characteristic in service.characteristics) {
-    //       if (characteristic.uuid.toString().toLowerCase().contains("abcdef01")) {
-    //         // _targetCharacteristic = characteristic;
-    //         List<int> value = await characteristic.read();
-    //         return String.fromCharCodes(value);
-    //       }
-    //     }
-    //   }
-    // }
-    //
-    // return null;
   }
 
   Future<void> disconnectFromDevice(BluetoothDevice device) async {

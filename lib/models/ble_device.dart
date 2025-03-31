@@ -12,7 +12,7 @@ class BleDevice {
   static BleDevice fromScanResult(ScanResult scanResult) {
     return BleDevice(
       scanResult: scanResult,
-      isConnectable: scanResult.device.platformName == "ESP32-BLE",
+      isConnectable: scanResult.device.platformName.contains("ESP32"),
     );
   }
 
