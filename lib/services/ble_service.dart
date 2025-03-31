@@ -66,4 +66,13 @@ class BleService {
   Future<void> disconnectFromDevice(BluetoothDevice device) async {
     return await device.disconnect();
   }
+
+  Future<List<BluetoothService>> loadServicesForDevice(BluetoothDevice device) async {
+    try {
+      return await device.discoverServices();
+    } catch (e) {
+      print("Error discovering services: $e");
+      return [];
+    }
+  }
 }
