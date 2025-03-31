@@ -94,9 +94,8 @@ void loop() {
 
       buttonPressed = true;
 
-      // Optional: send new LED state to BLE client (only works if client is subscribed & read enabled)
-      // pCharacteristic->setValue(ledState ? "1" : "0");
-      // pCharacteristic->notify();
+      pCharacteristic->setValue(ledState ? "1" : "0");
+      pCharacteristic->notify();
     } else if (reading == LOW) {
       buttonPressed = false;
     }

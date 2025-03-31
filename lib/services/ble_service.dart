@@ -8,8 +8,6 @@ class BleService {
   Stream<List<ScanResult>> get scanResultsStream => _scanResultsController.stream;
   Stream<bool> get isScanningStream => _isScanningController.stream;
 
-  // BluetoothCharacteristic? _targetCharacteristic;
-
   BleService() {
     _listenForChanges();
   }
@@ -38,13 +36,14 @@ class BleService {
     FlutterBluePlus.stopScan();
   }
 
+  /// \@throws Exception if there is an error connecting to a device
   Future<bool> connectToDevice(BluetoothDevice device) async {
     try {
       await device.connect();
       return true;
     } catch (e) {
       print("Error connecting to device: $e");
-      return false;
+      rethrow;
     }
   }
 
@@ -52,12 +51,13 @@ class BleService {
     return await device.disconnect();
   }
 
+  /// \@throws Exception if there is an error discovering services.
   Future<List<BluetoothService>> loadServicesForDevice(BluetoothDevice device) async {
     try {
       return await device.discoverServices();
     } catch (e) {
       print("Error discovering services: $e");
-      return [];
+      rethrow;
     }
   }
 }

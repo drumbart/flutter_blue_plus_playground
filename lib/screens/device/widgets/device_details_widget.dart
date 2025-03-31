@@ -5,12 +5,12 @@ import 'package:flutter_blue_plus_playground/blocs/device_services/device_servic
 import 'package:flutter_blue_plus_playground/models/ble_device.dart';
 
 class DeviceDetailsWidget extends StatelessWidget {
-  final BleDevice device;
-  const DeviceDetailsWidget({super.key, required this.device});
+  final BleDevice bleDevice;
+  const DeviceDetailsWidget({super.key, required this.bleDevice});
 
   @override
   Widget build(BuildContext context) {
-    context.read<DeviceServicesCubit>().loadServicesForDevice(device.scanResult.device);
+    context.read<DeviceServicesCubit>().loadServicesForDevice(bleDevice.scanResult.device);
     return BlocBuilder<DeviceServicesCubit, DeviceServicesState>(
       builder: (context, state) {
         if (state.isLoading) {
@@ -27,7 +27,41 @@ class DeviceDetailsWidget extends StatelessWidget {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: service.characteristics.map((characteristic) {
-                    return Text('Characteristic: ${characteristic.uuid}');
+                    final isLedChar = characteristic.uuid.toString().toLowerCase().contains("abcdef01");
+                    if (isLedChar) {
+                      return StatefulBuilder(
+                        builder: (context, setState) {
+                          bool isOn = false;
+                          characteristic.read().then((value) {
+                            final valueStr = String.fromCharCodes(value);
+                            final parsed = valueStr == '1';
+                            if (parsed != isOn) {
+                              setState(() {
+                                isOn = parsed;
+                              });
+                            }
+                          });
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Characteristic: ${characteristic.uuid}'),
+                              Switch(
+                                value: isOn,
+                                onChanged: (newValue) async {
+                                  final newVal = newValue ? '1' : '0';
+                                  await characteristic.write(newVal.codeUnits, withoutResponse: false);
+                                  setState(() {
+                                    isOn = newValue;
+                                  });
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } else {
+                      return Text('Characteristic: ${characteristic.uuid}');
+                    }
                   }).toList(),
                 ),
               );

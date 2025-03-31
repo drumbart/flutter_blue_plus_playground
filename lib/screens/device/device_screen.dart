@@ -35,7 +35,7 @@ class DeviceScreen extends StatelessWidget {
             const SizedBox(width: 48),
           ],
         ),
-        body: DeviceDetailsWidget(device: device),
+        body: DeviceDetailsWidget(bleDevice: device),
       ),
     );
   }
