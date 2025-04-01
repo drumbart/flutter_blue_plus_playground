@@ -2,6 +2,12 @@ import 'dart:ui' show Color;
 
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' show BluetoothCharacteristic;
 
+Map<String, Type> ledCharacteristicMap = {
+  'ff000000-1234-5678-1234-56789abcdef0': LEDRed,
+  '00ff0000-1234-5678-1234-56789abcdef0': LEDGreen,
+  'ffff0000-1234-5678-1234-56789abcdef0': LEDYellow,
+};
+
 abstract class LED {
   final Color color;
   final String name;
@@ -21,14 +27,20 @@ abstract class LED {
   LED({required this.color, required this.name, required this.characteristic});
 
   @override
-  bool operator ==(Object other) => identical(this, other) || other is LED && runtimeType == other.runtimeType && color == other.color;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LED &&
+          runtimeType == other.runtimeType &&
+          color == other.color &&
+          name == other.name &&
+          characteristic == other.characteristic;
 
   @override
-  int get hashCode => color.hashCode;
+  int get hashCode => color.hashCode ^ name.hashCode ^ characteristic.hashCode;
 
   @override
   String toString() {
-    return 'LED{color: $color}';
+    return 'LED{color: $color, name: $name, characteristic: $characteristic}';
   }
 }
 
