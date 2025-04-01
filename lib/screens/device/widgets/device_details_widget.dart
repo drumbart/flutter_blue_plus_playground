@@ -20,54 +20,55 @@ class DeviceDetailsWidget extends StatelessWidget {
         } else if (state.services.isEmpty) {
           return const Center(child: Text('No services found.'));
         } else {
-          final ledCubits = LEDCharacteristicsFactory.createLEDCubits(services: state.services);
+          final leds = LEDCharacteristicsFactory.createLEDs(services: state.services);
+          final ledProviders = LEDCharacteristicsFactory.createLEDProviders(leds: leds);
           return MultiBlocProvider(
-              providers: ledCubits,
+              providers: ledProviders,
               child: ListView.builder(
-                itemCount: state.services.length,
+                itemCount: leds.length,
                 itemBuilder: (context, index) {
-                  final service = state.services[index];
+                  final led = leds[index];
                   return ListTile(
-                    title: Text('Service: ${service.uuid}'),
+                    title: Text(led.name),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: service.characteristics.map((characteristic) {
-                        final isLedChar = characteristic.uuid.toString().toLowerCase().contains("redled01");
-                        if (isLedChar) {
-                          return StatefulBuilder(
-                            builder: (context, setState) {
-                              bool isOn = false;
-                              characteristic.read().then((value) {
-                                final valueStr = String.fromCharCodes(value);
-                                final parsed = valueStr == '1';
-                                if (parsed != isOn) {
-                                  setState(() {
-                                    isOn = parsed;
-                                  });
-                                }
-                              });
-                              return Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text('Characteristic: ${characteristic.uuid}'),
-                                  Switch(
-                                    value: isOn,
-                                    onChanged: (newValue) async {
-                                      final newVal = newValue ? '1' : '0';
-                                      await characteristic.write(newVal.codeUnits, withoutResponse: false);
-                                      setState(() {
-                                        isOn = newValue;
-                                      });
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        } else {
-                          return Text('Characteristic: ${characteristic.uuid}');
-                        }
-                      }).toList(),
+                      // children: service.characteristics.map((characteristic) {
+                      //   final isLedChar = characteristic.uuid.toString().toLowerCase().contains("redled01");
+                      //   if (isLedChar) {
+                      //     return StatefulBuilder(
+                      //       builder: (context, setState) {
+                      //         bool isOn = false;
+                      //         characteristic.read().then((value) {
+                      //           final valueStr = String.fromCharCodes(value);
+                      //           final parsed = valueStr == '1';
+                      //           if (parsed != isOn) {
+                      //             setState(() {
+                      //               isOn = parsed;
+                      //             });
+                      //           }
+                      //         });
+                      //         return Row(
+                      //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //           children: [
+                      //             Text('Characteristic: ${characteristic.uuid}'),
+                      //             Switch(
+                      //               value: isOn,
+                      //               onChanged: (newValue) async {
+                      //                 final newVal = newValue ? '1' : '0';
+                      //                 await characteristic.write(newVal.codeUnits, withoutResponse: false);
+                      //                 setState(() {
+                      //                   isOn = newValue;
+                      //                 });
+                      //               },
+                      //             ),
+                      //           ],
+                      //         );
+                      //       },
+                      //     );
+                      //   } else {
+                      //     return Text('Characteristic: ${characteristic.uuid}');
+                      //   }
+                      // }).toList(),
                     ),
                   );
                 },

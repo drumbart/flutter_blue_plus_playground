@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 
 class LedControlWidget extends StatelessWidget {
-  const LedControlWidget({super.key});
+  final bool isOn;
+  final ValueChanged<bool> onChanged;
+
+  const LedControlWidget({super.key, required this.isOn, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Switch(
+      value: isOn,
+      onChanged: onChanged,
+    );
   }
 }

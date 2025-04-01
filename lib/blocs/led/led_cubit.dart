@@ -1,8 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue_plus_playground/blocs/led/led_state.dart';
+import 'package:flutter_blue_plus_playground/models/led.dart';
 
-class LEDCubit extends Cubit<LEDState> {
-  final LEDState initialState;
+class LEDCubit<T extends LED> extends Cubit<LEDState> {
+  final LEDState<T> initialState;
 
   LEDCubit(this.initialState) : super(initialState);
 
