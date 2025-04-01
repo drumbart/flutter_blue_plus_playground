@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_blue_plus_playground/models/led.dart' show LED;
 
-class LedControlWidget extends StatelessWidget {
+class LedControlWidget<T extends LED> extends StatelessWidget {
   final bool isOn;
   final ValueChanged<bool> onChanged;
 

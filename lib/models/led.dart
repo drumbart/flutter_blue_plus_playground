@@ -1,6 +1,8 @@
 import 'dart:ui' show Color;
 
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' show BluetoothCharacteristic;
+import 'package:flutter_blue_plus_playground/blocs/led/led_cubit.dart' show LEDCubit;
+import 'package:flutter_blue_plus_playground/blocs/led/led_state.dart' show LEDState;
 
 Map<String, Type> ledCharacteristicMap = {
   'ff000000-1234-5678-1234-56789abcdef0': LEDRed,
@@ -25,6 +27,8 @@ abstract class LED {
   }
 
   LED({required this.color, required this.name, required this.characteristic});
+
+  LEDCubit createCubit();
 
   @override
   bool operator ==(Object other) =>
@@ -51,6 +55,9 @@ class LEDRed extends LED {
           name: '🔴 Red LED',
           characteristic: characteristic,
         );
+
+  @override
+  LEDCubit<LEDRed> createCubit() => LEDCubit<LEDRed>(LEDState(led: this, isOn: false));
 }
 
 class LEDGreen extends LED {
@@ -60,6 +67,9 @@ class LEDGreen extends LED {
           name: '🟢 Green LED',
           characteristic: characteristic,
         );
+
+  @override
+  LEDCubit<LEDGreen> createCubit() => LEDCubit<LEDGreen>(LEDState(led: this, isOn: false));
 }
 
 class LEDYellow extends LED {
@@ -69,4 +79,7 @@ class LEDYellow extends LED {
           name: '🟡 Yellow LED',
           characteristic: characteristic,
         );
+
+  @override
+  LEDCubit<LEDYellow> createCubit() => LEDCubit<LEDYellow>(LEDState(led: this, isOn: false));
 }

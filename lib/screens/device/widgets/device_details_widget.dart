@@ -21,7 +21,7 @@ class DeviceDetailsWidget extends StatelessWidget {
           return const Center(child: Text('No services found.'));
         } else {
           final leds = LEDCharacteristicsFactory.createLEDs(services: state.services);
-          final ledProviders = LEDCharacteristicsFactory.createLEDProviders(leds: leds);
+          final ledProviders = LEDCharacteristicsFactory.createTypedLEDProviders(leds: leds);
           return MultiBlocProvider(
               providers: ledProviders,
               child: ListView.builder(
