@@ -1,12 +1,12 @@
 import 'package:flutter_blue_plus_playground/models/led.dart';
 
-class LEDState<T extends LED> {
-  final T led;
+class LEDState {
+  final LED led;
   final bool isOn;
 
   LEDState({required this.led, required this.isOn});
 
-  LEDState copyWith({T? led, bool? isOn}) {
+  LEDState copyWith({LED? led, bool? isOn}) {
     return LEDState(
       led: led ?? this.led,
       isOn: isOn ?? this.isOn,
