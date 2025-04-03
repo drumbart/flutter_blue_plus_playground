@@ -8,7 +8,10 @@
 #define YELLOW_LED_CHAR_UUID "ffff0000-1234-5678-1234-56789abcdef0"
 
 // Pins
-const int buttonPin = 4;
+const int redButtonPin = 4;
+const int greenButtonPin = 15;
+const int yellowButtonPin = 2;
+
 const int redLedPin = 5;
 const int greenLedPin = 18;
 const int yellowLedPin = 19;
@@ -18,7 +21,6 @@ bool redLedState = false;
 bool greenLedState = false;
 bool yellowLedState = false;
 
-bool lastButtonState = LOW;
 bool buttonPressed = false;
 
 unsigned long lastDebounceTime = 0;
