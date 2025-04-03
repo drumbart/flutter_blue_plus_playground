@@ -1,6 +1,7 @@
 #include <BLEDevice.h>
 #include <BLEUtils.h>
 #include <BLEServer.h>
+#include <BLE2902.h>
 
 #define RED_LED_CHAR_UUID    "ff000000-1234-5678-1234-56789abcdef0"
 #define GREEN_LED_CHAR_UUID  "00ff0000-1234-5678-1234-56789abcdef0"
@@ -76,14 +77,19 @@ void setup() {
     RED_LED_CHAR_UUID,
     BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_NOTIFY
   );
+  pRedChar->addDescriptor(new BLE2902());
+
   pGreenChar = pService->createCharacteristic(
     GREEN_LED_CHAR_UUID,
     BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_NOTIFY
   );
+  pGreenChar->addDescriptor(new BLE2902());
+
   pYellowChar = pService->createCharacteristic(
     YELLOW_LED_CHAR_UUID,
     BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_NOTIFY
   );
+  pYellowChar->addDescriptor(new BLE2902());
   
   pRedChar->setCallbacks(new LedWriteCallback(redLedPin));
   pGreenChar->setCallbacks(new LedWriteCallback(greenLedPin));

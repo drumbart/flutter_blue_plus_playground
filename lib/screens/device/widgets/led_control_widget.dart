@@ -23,14 +23,13 @@ class _LEDControlContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.read<LEDCubit>().readAndSetLEDState();
     final state = context.watch<LEDCubit>().state;
     return ListTile(
       title: Text(state.led.name),
       trailing: Switch(
         value: state.isOn,
-        onChanged: (value) {
-          context.read<LEDCubit>().toggle(value);
-        },
+        onChanged: (value) => context.read<LEDCubit>().toggle(value),
       ),
     );
   }

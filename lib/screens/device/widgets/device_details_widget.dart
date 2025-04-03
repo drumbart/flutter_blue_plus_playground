@@ -4,7 +4,6 @@ import 'package:flutter_blue_plus_playground/blocs/device_services/device_servic
 import 'package:flutter_blue_plus_playground/blocs/device_services/device_services_state.dart';
 import 'package:flutter_blue_plus_playground/factories/led_characteristics_factory.dart';
 import 'package:flutter_blue_plus_playground/models/ble_device.dart';
-import 'package:flutter_blue_plus_playground/models/led.dart';
 import 'package:flutter_blue_plus_playground/screens/device/widgets/led_control_widget.dart';
 
 class DeviceDetailsWidget extends StatelessWidget {
