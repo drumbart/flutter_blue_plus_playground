@@ -23,6 +23,8 @@ bool yellowLedState = false;
 
 bool buttonPressed = false;
 
+bool lastButtonState = LOW;
+
 unsigned long lastDebounceTime = 0;
 const unsigned long debounceDelay = 50;
 
@@ -63,7 +65,7 @@ public:
 
 void setup() {
   Serial.begin(115200);
-  pinMode(buttonPin, INPUT);
+  pinMode(redButtonPin, INPUT);
   pinMode(redLedPin, OUTPUT);
   digitalWrite(redLedPin, redLedState);
 
@@ -109,7 +111,7 @@ void setup() {
 }
 
 void loop() {
-  int reading = digitalRead(buttonPin);
+  int reading = digitalRead(redButtonPin);
 
   if (reading != lastButtonState) {
     lastDebounceTime = millis();
