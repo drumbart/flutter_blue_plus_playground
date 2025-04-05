@@ -39,17 +39,20 @@ class LedUIFactory {
   static Widget _buildRGBLedUI(LEDRGB led) {
     return BlocBuilder<LEDCubit, LEDState>(
       builder: (context, state) {
+        // Get the current color from the LED
+        final currentColor = led.selectedColor;
+        
         return ExpansionTile(
           initiallyExpanded: true,
           leading: Icon(
             state.isOn ? Icons.lightbulb : Icons.lightbulb_outline,
-            color: led.selectedColor,
+            color: currentColor,
           ),
           title: Text(led.name),
           trailing: Switch(
             value: state.isOn,
             onChanged: (value) => context.read<LEDCubit>().toggle(value),
-            activeColor: led.selectedColor,
+            activeColor: currentColor,
           ),
           children: [
             Padding(
@@ -60,7 +63,7 @@ class LedUIFactory {
                   const Text('Select Color:'),
                   const SizedBox(height: 8),
                   ColorPicker(
-                    color: led.selectedColor,
+                    color: currentColor,
                     onColorChanged: (color) async {
                       await led.updateColor(color);
                     },
@@ -98,6 +101,14 @@ class _ColorPickerState extends State<ColorPicker> {
     super.initState();
     _color = widget.color;
   }
+  
+  @override
+  void didUpdateWidget(ColorPicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.color != widget.color) {
+      _color = widget.color;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,21 +125,21 @@ class _ColorPickerState extends State<ColorPicker> {
         ),
         const SizedBox(height: 16),
         // RGB sliders
-        _buildSlider('Red', _color.r.toDouble(), (value) {
+        _buildSlider('Red', _color.red.toDouble(), (value) {
           setState(() {
-            _color = Color.fromARGB(255, value.round().toInt(), _color.g.toInt(), _color.b.toInt());
+            _color = Color.fromARGB(255, value.round().toInt(), _color.green.toInt(), _color.blue.toInt());
             widget.onColorChanged(_color);
           });
         }),
-        _buildSlider('Green', _color.g.toDouble(), (value) {
+        _buildSlider('Green', _color.green.toDouble(), (value) {
           setState(() {
-            _color = Color.fromARGB(255, _color.r.toInt(), value.round().toInt(), _color.b.toInt());
+            _color = Color.fromARGB(255, _color.red.toInt(), value.round().toInt(), _color.blue.toInt());
             widget.onColorChanged(_color);
           });
         }),
-        _buildSlider('Blue', _color.b.toDouble(), (value) {
+        _buildSlider('Blue', _color.blue.toDouble(), (value) {
           setState(() {
-            _color = Color.fromARGB(255, _color.r.toInt(), _color.g.toInt(), value.round().toInt());
+            _color = Color.fromARGB(255, _color.red.toInt(), _color.green.toInt(), value.round().toInt());
             widget.onColorChanged(_color);
           });
         }),
