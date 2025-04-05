@@ -34,30 +34,27 @@ bool deviceConnected = false;
 #include <BLEServer.h>
 #include <BLE2902.h>
 
-// LED State Management
-class Led {
+// Base LED State Management
+class RgbLed {
 protected:
   const int buttonPin;
-  const int ledPin;
   bool ledState;
   bool buttonPressed;
   unsigned long lastDebounceTime;
   BLECharacteristic* characteristic;
 
 public:
-  Led(int btnPin, int lPin, BLECharacteristic* char_) 
-    : buttonPin(btnPin), ledPin(lPin), ledState(false), 
+  RgbLed(int btnPin, BLECharacteristic* char_) 
+    : buttonPin(btnPin), ledState(false), 
       buttonPressed(false), lastDebounceTime(0), characteristic(char_) {
     pinMode(buttonPin, INPUT);
-    pinMode(ledPin, OUTPUT);
-    digitalWrite(ledPin, ledState);
   }
 
   virtual void update() {
     int reading = digitalRead(buttonPin);
     if (reading == HIGH && !buttonPressed && (millis() - lastDebounceTime > DEBOUNCE_DELAY)) {
       ledState = !ledState;
-      digitalWrite(ledPin, ledState);
+      setState(ledState);
       if (deviceConnected && characteristic != nullptr) {
         characteristic->setValue(ledState ? "1" : "0");
         characteristic->notify();
@@ -69,59 +66,73 @@ public:
     }
   }
 
-  virtual void setState(bool state) {
-    ledState = state;
-    digitalWrite(ledPin, ledState);
+  virtual void setState(bool state) = 0;  // Pure virtual function
+};
+
+// Single Color LED Base Class
+class SingleColorLed : public RgbLed {
+protected:
+  const int ledPin;
+
+public:
+  SingleColorLed(int btnPin, int lPin, BLECharacteristic* char_) 
+    : RgbLed(btnPin, char_), ledPin(lPin) {
+    pinMode(ledPin, OUTPUT);
+    digitalWrite(ledPin, LOW);
+  }
+
+  void setState(bool state) override {
+    digitalWrite(ledPin, state ? HIGH : LOW);
   }
 };
 
-// RGB LED State Management
-class RgbLed : public Led {
+// Red LED
+class RedLed : public SingleColorLed {
+public:
+  RedLed(int btnPin, int lPin, BLECharacteristic* char_) 
+    : SingleColorLed(btnPin, lPin, char_) {}
+};
+
+// Green LED
+class GreenLed : public SingleColorLed {
+public:
+  GreenLed(int btnPin, int lPin, BLECharacteristic* char_) 
+    : SingleColorLed(btnPin, lPin, char_) {}
+};
+
+// Yellow LED
+class YellowLed : public SingleColorLed {
+public:
+  YellowLed(int btnPin, int lPin, BLECharacteristic* char_) 
+    : SingleColorLed(btnPin, lPin, char_) {}
+};
+
+// RGB LED
+class RgbFullLed : public RgbLed {
 private:
+  const int redPin;
   const int greenPin;
   const int bluePin;
 
 public:
-  RgbLed(int btnPin, int rPin, int gPin, int bPin, BLECharacteristic* char_) 
-    : Led(btnPin, rPin, char_), greenPin(gPin), bluePin(bPin) {
+  RgbFullLed(int btnPin, int rPin, int gPin, int bPin, BLECharacteristic* char_) 
+    : RgbLed(btnPin, char_), redPin(rPin), greenPin(gPin), bluePin(bPin) {
+    pinMode(redPin, OUTPUT);
     pinMode(greenPin, OUTPUT);
     pinMode(bluePin, OUTPUT);
-    setColor(0, 0, 0);
-  }
-
-  void update() override {
-    int reading = digitalRead(buttonPin);
-    if (reading == HIGH && !buttonPressed && (millis() - lastDebounceTime > DEBOUNCE_DELAY)) {
-      ledState = !ledState;
-      if (ledState) {
-        setColor(255, 255, 255); // White when on
-      } else {
-        setColor(0, 0, 0); // Off
-      }
-      if (deviceConnected && characteristic != nullptr) {
-        characteristic->setValue(ledState ? "1" : "0");
-        characteristic->notify();
-      }
-      buttonPressed = true;
-      lastDebounceTime = millis();
-    } else if (reading == LOW) {
-      buttonPressed = false;
-    }
+    setState(false);
   }
 
   void setState(bool state) override {
-    ledState = state;
-    if (ledState) {
-      setColor(255, 255, 255); // White when on
+    if (state) {
+      digitalWrite(redPin, HIGH);
+      digitalWrite(greenPin, HIGH);
+      digitalWrite(bluePin, HIGH);
     } else {
-      setColor(0, 0, 0); // Off
+      digitalWrite(redPin, LOW);
+      digitalWrite(greenPin, LOW);
+      digitalWrite(bluePin, LOW);
     }
-  }
-
-  void setColor(int r, int g, int b) {
-    digitalWrite(ledPin, r > 0 ? HIGH : LOW);
-    digitalWrite(greenPin, g > 0 ? HIGH : LOW);
-    digitalWrite(bluePin, b > 0 ? HIGH : LOW);
   }
 };
 
@@ -140,9 +151,9 @@ class MyServerCallbacks : public BLEServerCallbacks {
 };
 
 class LedWriteCallback : public BLECharacteristicCallbacks {
-  Led& led;
+  RgbLed& led;
 public:
-  LedWriteCallback(Led& ledRef) : led(ledRef) {}
+  LedWriteCallback(RgbLed& ledRef) : led(ledRef) {}
   
   void onWrite(BLECharacteristic *pCharacteristic) override {
     String value = pCharacteristic->getValue();
@@ -154,10 +165,10 @@ public:
 };
 
 // Global variables
-Led* redLed;
-Led* yellowLed;
-Led* greenLed;
-Led* rgbLed;
+RgbLed* redLed;
+RgbLed* yellowLed;
+RgbLed* greenLed;
+RgbLed* rgbLed;
 BLEServer* pServer = nullptr;
 BLEService* pService = nullptr;
 
@@ -206,10 +217,10 @@ void setup() {
   rgbChar->addDescriptor(new BLE2902());
 
   // Initialize LED objects
-  redLed = new Led(redButtonPin, redLedPin, redChar);  
-  yellowLed = new Led(yellowButtonPin, yellowLedPin, yellowChar);
-  greenLed = new Led(greenButtonPin, greenLedPin, greenChar);
-  rgbLed = new RgbLed(rgbButtonPin, rgbrLedPin, rgbgLedPin, rgbbLedPin, rgbChar);
+  redLed = new RedLed(redButtonPin, redLedPin, redChar);  
+  yellowLed = new YellowLed(yellowButtonPin, yellowLedPin, yellowChar);
+  greenLed = new GreenLed(greenButtonPin, greenLedPin, greenChar);
+  rgbLed = new RgbFullLed(rgbButtonPin, rgbrLedPin, rgbgLedPin, rgbbLedPin, rgbChar);
 
   // Set callbacks
   redChar->setCallbacks(new LedWriteCallback(*redLed));
