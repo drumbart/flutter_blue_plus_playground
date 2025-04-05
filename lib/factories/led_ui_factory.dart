@@ -95,11 +95,20 @@ class ColorPicker extends StatefulWidget {
 
 class _ColorPickerState extends State<ColorPicker> {
   late Color _color;
+  // Add variables to track the current slider values
+  late double _redValue;
+  late double _greenValue;
+  late double _blueValue;
+  // Add a flag to track if we're currently dragging
+  bool _isDragging = false;
 
   @override
   void initState() {
     super.initState();
     _color = widget.color;
+    _redValue = _color.red.toDouble();
+    _greenValue = _color.green.toDouble();
+    _blueValue = _color.blue.toDouble();
   }
   
   @override
@@ -107,6 +116,25 @@ class _ColorPickerState extends State<ColorPicker> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.color != widget.color) {
       _color = widget.color;
+      _redValue = _color.red.toDouble();
+      _greenValue = _color.green.toDouble();
+      _blueValue = _color.blue.toDouble();
+    }
+  }
+
+  // Method to update the color when a slider is released
+  void _updateColor() {
+    if (_isDragging) {
+      setState(() {
+        _color = Color.fromARGB(
+          255, 
+          _redValue.round().toInt(), 
+          _greenValue.round().toInt(), 
+          _blueValue.round().toInt()
+        );
+        widget.onColorChanged(_color);
+      });
+      _isDragging = false;
     }
   }
 
@@ -125,23 +153,53 @@ class _ColorPickerState extends State<ColorPicker> {
         ),
         const SizedBox(height: 16),
         // RGB sliders
-        _buildSlider('Red', _color.red.toDouble(), (value) {
+        _buildSlider('Red', _redValue, (value) {
           setState(() {
-            _color = Color.fromARGB(255, value.round().toInt(), _color.green.toInt(), _color.blue.toInt());
-            widget.onColorChanged(_color);
+            _redValue = value;
+            // Update the preview color immediately
+            _color = Color.fromARGB(
+              255, 
+              _redValue.round().toInt(), 
+              _greenValue.round().toInt(), 
+              _blueValue.round().toInt()
+            );
           });
+        }, () {
+          _isDragging = true;
+        }, () {
+          _updateColor();
         }),
-        _buildSlider('Green', _color.green.toDouble(), (value) {
+        _buildSlider('Green', _greenValue, (value) {
           setState(() {
-            _color = Color.fromARGB(255, _color.red.toInt(), value.round().toInt(), _color.blue.toInt());
-            widget.onColorChanged(_color);
+            _greenValue = value;
+            // Update the preview color immediately
+            _color = Color.fromARGB(
+              255, 
+              _redValue.round().toInt(), 
+              _greenValue.round().toInt(), 
+              _blueValue.round().toInt()
+            );
           });
+        }, () {
+          _isDragging = true;
+        }, () {
+          _updateColor();
         }),
-        _buildSlider('Blue', _color.blue.toDouble(), (value) {
+        _buildSlider('Blue', _blueValue, (value) {
           setState(() {
-            _color = Color.fromARGB(255, _color.red.toInt(), _color.green.toInt(), value.round().toInt());
-            widget.onColorChanged(_color);
+            _blueValue = value;
+            // Update the preview color immediately
+            _color = Color.fromARGB(
+              255, 
+              _redValue.round().toInt(), 
+              _greenValue.round().toInt(), 
+              _blueValue.round().toInt()
+            );
           });
+        }, () {
+          _isDragging = true;
+        }, () {
+          _updateColor();
         }),
         const SizedBox(height: 16),
         // Preset colors
@@ -162,7 +220,13 @@ class _ColorPickerState extends State<ColorPicker> {
     );
   }
 
-  Widget _buildSlider(String label, double value, ValueChanged<double> onChanged) {
+  Widget _buildSlider(
+    String label, 
+    double value, 
+    ValueChanged<double> onChanged,
+    VoidCallback onDragStart,
+    VoidCallback onDragEnd,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -174,6 +238,8 @@ class _ColorPickerState extends State<ColorPicker> {
           divisions: 255,
           label: value.round().toString(),
           onChanged: onChanged,
+          onChangeStart: (_) => onDragStart(),
+          onChangeEnd: (_) => onDragEnd(),
         ),
       ],
     );
@@ -184,6 +250,9 @@ class _ColorPickerState extends State<ColorPicker> {
       onTap: () {
         setState(() {
           _color = color;
+          _redValue = color.red.toDouble();
+          _greenValue = color.green.toDouble();
+          _blueValue = color.blue.toDouble();
           widget.onColorChanged(_color);
         });
       },
