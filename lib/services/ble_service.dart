@@ -20,6 +20,7 @@ class BleService {
   final Duration scanTimeout;
   BluetoothDevice? _connectedDevice;
   bool _isDisposed = false;
+  Timer? _connectionCheckTimer;
 
   Stream<List<ScanResult>> get scanResultsStream => _scanResultsController.stream;
   Stream<bool> get isScanningStream => _isScanningController.stream;
@@ -29,12 +30,14 @@ class BleService {
 
   BleService({this.scanTimeout = const Duration(seconds: 10)}) {
     _listenForChanges();
+    _startConnectionCheck();
   }
 
   void dispose() {
     if (_isDisposed) return;
     _isDisposed = true;
     
+    _connectionCheckTimer?.cancel();
     _scanResultsController.close();
     _isScanningController.close();
     _connectedDeviceController.close();
@@ -44,6 +47,31 @@ class BleService {
   void _checkDisposed() {
     if (_isDisposed) {
       throw BleException('BleService has been disposed');
+    }
+  }
+
+  void _startConnectionCheck() {
+    _connectionCheckTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_isDisposed) {
+        timer.cancel();
+        return;
+      }
+      _checkConnectedDevices();
+    });
+  }
+
+  void _checkConnectedDevices() {
+    try {
+      final connectedDevices = FlutterBluePlus.connectedDevices;
+      if (connectedDevices.isEmpty && _connectedDevice != null) {
+        _connectedDevice = null;
+        _connectedDeviceController.add(null);
+      }
+    } catch (e) {
+      _checkDisposed();
+      _connectedDeviceController.addError(
+        BleException('Failed to check connected devices', e),
+      );
     }
   }
 
@@ -83,22 +111,6 @@ class BleService {
         _checkDisposed();
         _adapterStateController.addError(
           BleException('Failed to receive adapter state', error),
-        );
-      },
-    );
-
-    FlutterBluePlus.connectedDevices.listen(
-      (devices) {
-        _checkDisposed();
-        if (devices.isEmpty && _connectedDevice != null) {
-          _connectedDevice = null;
-          _connectedDeviceController.add(null);
-        }
-      },
-      onError: (error) {
-        _checkDisposed();
-        _connectedDeviceController.addError(
-          BleException('Failed to receive connected devices', error),
         );
       },
     );
