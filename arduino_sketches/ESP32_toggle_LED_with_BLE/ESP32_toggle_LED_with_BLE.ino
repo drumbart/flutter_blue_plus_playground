@@ -116,6 +116,7 @@ private:
   uint8_t redValue = 255;
   uint8_t greenValue = 255;
   uint8_t blueValue = 255;
+  const uint8_t RGB_THRESHOLD = 127;
 
 public:
   RgbFullLed(int btnPin, int rPin, int gPin, int bPin, BLECharacteristic* char_) 
@@ -130,17 +131,29 @@ public:
 
   void setState(bool state) override {
     ledState = state;  // Update the ledState variable
+    Serial.printf("RgbFullLed setState called with state: %s\n", state ? "ON" : "OFF");
+    
     if (state) {
       // Use digital output to set the RGB values
       // For digital output, we'll use a threshold to determine if a color component is on or off
-      digitalWrite(redPin, redValue > 127 ? HIGH : LOW);
-      digitalWrite(greenPin, greenValue > 127 ? HIGH : LOW);
-      digitalWrite(bluePin, blueValue > 127 ? HIGH : LOW);
+      bool redOn = redValue > RGB_THRESHOLD;
+      bool greenOn = greenValue > RGB_THRESHOLD;
+      bool blueOn = blueValue > RGB_THRESHOLD;
+      
+      digitalWrite(redPin, redOn ? HIGH : LOW);
+      digitalWrite(greenPin, greenOn ? HIGH : LOW);
+      digitalWrite(bluePin, blueOn ? HIGH : LOW);
+      
+      Serial.printf("RGB LED turned ON with values: R=%s, G=%s, B=%s\n", 
+                   redOn ? "HIGH" : "LOW",
+                   greenOn ? "HIGH" : "LOW",
+                   blueOn ? "HIGH" : "LOW");
     } else {
       // Turn off all LEDs
       digitalWrite(redPin, LOW);
       digitalWrite(greenPin, LOW);
       digitalWrite(bluePin, LOW);
+      Serial.println("RGB LED turned OFF");
     }
   }
   
@@ -223,16 +236,18 @@ public:
         }
       } else if (value == "1" || value == "0") {
         // Handle simple toggle for RGB LED
-        led.setState(value == "1");
-        Serial.printf("RGB LED %s\n", value == "1" ? "ON" : "OFF");
+        bool newState = (value == "1");
+        led.setState(newState);
+        Serial.printf("RGB LED %s\n", newState ? "ON" : "OFF");
       } else {
         Serial.printf("Unexpected RGB LED data format: %s\n", value.c_str());
       }
     } else {
       // Handle standard LED (on/off only)
       if (value == "1" || value == "0") {
-        led.setState(value == "1");
-        Serial.printf("Standard LED %s\n", value == "1" ? "ON" : "OFF");
+        bool newState = (value == "1");
+        led.setState(newState);
+        Serial.printf("Standard LED %s\n", newState ? "ON" : "OFF");
       } else {
         Serial.printf("Unexpected standard LED data format: %s\n", value.c_str());
       }

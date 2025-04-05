@@ -106,9 +106,10 @@ class _ColorPickerState extends State<ColorPicker> {
   void initState() {
     super.initState();
     _color = widget.color;
-    _redValue = _color.r.toDouble();
-    _greenValue = _color.g.toDouble();
-    _blueValue = _color.b.toDouble();
+    // Initialize slider values from 0.0-1.0 range
+    _redValue = _color.r;
+    _greenValue = _color.g;
+    _blueValue = _color.b;
   }
   
   @override
@@ -116,9 +117,10 @@ class _ColorPickerState extends State<ColorPicker> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.color != widget.color) {
       _color = widget.color;
-      _redValue = _color.r.toDouble();
-      _greenValue = _color.g.toDouble();
-      _blueValue = _color.b.toDouble();
+      // Update slider values from 0.0-1.0 range
+      _redValue = _color.r;
+      _greenValue = _color.g;
+      _blueValue = _color.b;
     }
   }
 
@@ -128,9 +130,9 @@ class _ColorPickerState extends State<ColorPicker> {
       setState(() {
         _color = Color.fromARGB(
           255, 
-          _redValue.round().toInt(), 
-          _greenValue.round().toInt(), 
-          _blueValue.round().toInt()
+          (_redValue * 255).round().toInt(), 
+          (_greenValue * 255).round().toInt(), 
+          (_blueValue * 255).round().toInt()
         );
         widget.onColorChanged(_color);
       });
@@ -159,9 +161,9 @@ class _ColorPickerState extends State<ColorPicker> {
             // Update the preview color immediately
             _color = Color.fromARGB(
               255, 
-              _redValue.round().toInt(), 
-              _greenValue.round().toInt(), 
-              _blueValue.round().toInt()
+              (_redValue * 255).round().toInt(), 
+              (_greenValue * 255).round().toInt(), 
+              (_blueValue * 255).round().toInt()
             );
           });
         }, () {
@@ -175,9 +177,9 @@ class _ColorPickerState extends State<ColorPicker> {
             // Update the preview color immediately
             _color = Color.fromARGB(
               255, 
-              _redValue.round().toInt(), 
-              _greenValue.round().toInt(), 
-              _blueValue.round().toInt()
+              (_redValue * 255).round().toInt(), 
+              (_greenValue * 255).round().toInt(), 
+              (_blueValue * 255).round().toInt()
             );
           });
         }, () {
@@ -191,9 +193,9 @@ class _ColorPickerState extends State<ColorPicker> {
             // Update the preview color immediately
             _color = Color.fromARGB(
               255, 
-              _redValue.round().toInt(), 
-              _greenValue.round().toInt(), 
-              _blueValue.round().toInt()
+              (_redValue * 255).round().toInt(), 
+              (_greenValue * 255).round().toInt(), 
+              (_blueValue * 255).round().toInt()
             );
           });
         }, () {
@@ -234,9 +236,9 @@ class _ColorPickerState extends State<ColorPicker> {
         Slider(
           value: value,
           min: 0,
-          max: 255,
-          divisions: 255,
-          label: value.round().toString(),
+          max: 1, // Changed from 255 to 1 to match the 0.0-1.0 range
+          divisions: 100, // Changed from 255 to 100 for finer control
+          label: (value * 255).round().toString(),
           onChanged: onChanged,
           onChangeStart: (_) => onDragStart(),
           onChangeEnd: (_) => onDragEnd(),
@@ -250,9 +252,10 @@ class _ColorPickerState extends State<ColorPicker> {
       onTap: () {
         setState(() {
           _color = color;
-          _redValue = color.r.toDouble();
-          _greenValue = color.g.toDouble();
-          _blueValue = color.b.toDouble();
+          // Update slider values from 0.0-1.0 range
+          _redValue = color.r;
+          _greenValue = color.g;
+          _blueValue = color.b;
           widget.onColorChanged(_color);
         });
       },

@@ -122,10 +122,19 @@ class LEDRGB extends LED {
     
     if (isOn) {
       // When turning on, send the current color
-      await _writeState([1, selectedColor.r.toInt(), selectedColor.g.toInt(), selectedColor.b.toInt()]);
+      // Convert from 0.0-1.0 range to 0-255 range
+      final data = [
+        1, 
+        (selectedColor.r * 255).round(), 
+        (selectedColor.g * 255).round(), 
+        (selectedColor.b * 255).round()
+      ];
+      debugPrint('Sending color data on toggle: $data');
+      await characteristic.write(data);
     } else {
       // When turning off, just send 0
-      await _writeState([0]);
+      debugPrint('Sending OFF command on toggle');
+      await characteristic.write([0]);
     }
   }
   
@@ -140,8 +149,17 @@ class LEDRGB extends LED {
       } else {
         // If no data provided, use the current state
         if (isOn) {
-          await characteristic.write([1, selectedColor.r.toInt(), selectedColor.g.toInt(), selectedColor.b.toInt()]);
+          // Convert from 0.0-1.0 range to 0-255 range
+          final data = [
+            1, 
+            (selectedColor.r * 255).round(), 
+            (selectedColor.g * 255).round(), 
+            (selectedColor.b * 255).round()
+          ];
+          debugPrint('Sending current color data: $data');
+          await characteristic.write(data);
         } else {
+          debugPrint('Sending OFF command');
           await characteristic.write([0]);
         }
       }
@@ -159,12 +177,23 @@ class LEDRGB extends LED {
     
     // Send the color data to the ESP32 regardless of LED state
     try {
-      // Send RGB values to the ESP32
-      // Format: [1, R, G, B] where R, G, B are values from 0-255
-      final data = [1, color.r.toInt(), color.g.toInt(), color.b.toInt()];
+      // Convert color values from 0.0-1.0 range to 0-255 range
+      final data = [
+        1, 
+        (color.r * 255).round(), 
+        (color.g * 255).round(), 
+        (color.b * 255).round()
+      ];
       debugPrint('Sending data to ESP32: $data');
+      
+      // If the LED is off, turn it on with the new color
+      if (!isOn) {
+        isOn = true;
+        debugPrint('RGB LED was OFF, turning it ON with the new color');
+      }
+      
       await characteristic.write(data);
-      debugPrint('Successfully sent RGB color: R=${color.r}, G=${color.g}, B=${color.b}');
+      debugPrint('Successfully sent RGB color: R=${(color.r * 255).round()}, G=${(color.g * 255).round()}, B=${(color.b * 255).round()}');
     } catch (e) {
       debugPrint('Error sending RGB color to ESP32: $e');
     }
