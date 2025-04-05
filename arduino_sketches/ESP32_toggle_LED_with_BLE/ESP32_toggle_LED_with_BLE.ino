@@ -6,14 +6,22 @@
 #define RED_LED_CHAR_UUID    "ff000000-1234-5678-1234-56789abcdef0"
 #define GREEN_LED_CHAR_UUID  "00ff0000-1234-5678-1234-56789abcdef0"
 #define YELLOW_LED_CHAR_UUID "ffff0000-1234-5678-1234-56789abcdef0"
+#define RGB_LED_CHAR_UUID    "ffffff00-1234-5678-1234-56789abcdef0"
 
 // Pin Configuration
 const int redButtonPin = 4;
-const int greenButtonPin = 15;
-const int yellowButtonPin = 2;
 const int redLedPin = 5;
-const int greenLedPin = 18;
-const int yellowLedPin = 19;
+
+const int yellowButtonPin = 15;
+const int yellowLedPin = 18;
+
+const int greenButtonPin = 2;
+const int greenLedPin = 19;
+
+const int rgbButtonPin = 13;
+const int rgbrLedPin = 21;
+const int rgbgLedPin = 22;
+const int rgbbLedPin = 23;
 
 // Debounce Configuration
 const unsigned long DEBOUNCE_DELAY = 50;
@@ -28,7 +36,7 @@ bool deviceConnected = false;
 
 // LED State Management
 class Led {
-private:
+protected:
   const int buttonPin;
   const int ledPin;
   bool ledState;
@@ -45,7 +53,7 @@ public:
     digitalWrite(ledPin, ledState);
   }
 
-  void update() {
+  virtual void update() {
     int reading = digitalRead(buttonPin);
     if (reading == HIGH && !buttonPressed && (millis() - lastDebounceTime > DEBOUNCE_DELAY)) {
       ledState = !ledState;
@@ -61,9 +69,59 @@ public:
     }
   }
 
-  void setState(bool state) {
+  virtual void setState(bool state) {
     ledState = state;
     digitalWrite(ledPin, ledState);
+  }
+};
+
+// RGB LED State Management
+class RgbLed : public Led {
+private:
+  const int greenPin;
+  const int bluePin;
+
+public:
+  RgbLed(int btnPin, int rPin, int gPin, int bPin, BLECharacteristic* char_) 
+    : Led(btnPin, rPin, char_), greenPin(gPin), bluePin(bPin) {
+    pinMode(greenPin, OUTPUT);
+    pinMode(bluePin, OUTPUT);
+    setColor(0, 0, 0);
+  }
+
+  void update() override {
+    int reading = digitalRead(buttonPin);
+    if (reading == HIGH && !buttonPressed && (millis() - lastDebounceTime > DEBOUNCE_DELAY)) {
+      ledState = !ledState;
+      if (ledState) {
+        setColor(255, 255, 255); // White when on
+      } else {
+        setColor(0, 0, 0); // Off
+      }
+      if (deviceConnected && characteristic != nullptr) {
+        characteristic->setValue(ledState ? "1" : "0");
+        characteristic->notify();
+      }
+      buttonPressed = true;
+      lastDebounceTime = millis();
+    } else if (reading == LOW) {
+      buttonPressed = false;
+    }
+  }
+
+  void setState(bool state) override {
+    ledState = state;
+    if (ledState) {
+      setColor(255, 255, 255); // White when on
+    } else {
+      setColor(0, 0, 0); // Off
+    }
+  }
+
+  void setColor(int r, int g, int b) {
+    digitalWrite(ledPin, r > 0 ? HIGH : LOW);
+    digitalWrite(greenPin, g > 0 ? HIGH : LOW);
+    digitalWrite(bluePin, b > 0 ? HIGH : LOW);
   }
 };
 
@@ -97,8 +155,9 @@ public:
 
 // Global variables
 Led* redLed;
-Led* greenLed;
 Led* yellowLed;
+Led* greenLed;
+Led* rgbLed;
 BLEServer* pServer = nullptr;
 BLEService* pService = nullptr;
 
@@ -127,28 +186,36 @@ void setup() {
     BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_NOTIFY
   );
   redChar->addDescriptor(new BLE2902());
+
+  auto yellowChar = pService->createCharacteristic(
+    YELLOW_LED_CHAR_UUID,
+    BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_NOTIFY
+  );
+  yellowChar->addDescriptor(new BLE2902());
   
   auto greenChar = pService->createCharacteristic(
     GREEN_LED_CHAR_UUID,
     BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_NOTIFY
   );
   greenChar->addDescriptor(new BLE2902());
-  
-  auto yellowChar = pService->createCharacteristic(
-    YELLOW_LED_CHAR_UUID,
+
+  auto rgbChar = pService->createCharacteristic(
+    RGB_LED_CHAR_UUID,
     BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE | BLECharacteristic::PROPERTY_NOTIFY
   );
-  yellowChar->addDescriptor(new BLE2902());
+  rgbChar->addDescriptor(new BLE2902());
 
   // Initialize LED objects
-  redLed = new Led(redButtonPin, redLedPin, redChar);
-  greenLed = new Led(greenButtonPin, greenLedPin, greenChar);
+  redLed = new Led(redButtonPin, redLedPin, redChar);  
   yellowLed = new Led(yellowButtonPin, yellowLedPin, yellowChar);
+  greenLed = new Led(greenButtonPin, greenLedPin, greenChar);
+  rgbLed = new RgbLed(rgbButtonPin, rgbrLedPin, rgbgLedPin, rgbbLedPin, rgbChar);
 
   // Set callbacks
   redChar->setCallbacks(new LedWriteCallback(*redLed));
-  greenChar->setCallbacks(new LedWriteCallback(*greenLed));
   yellowChar->setCallbacks(new LedWriteCallback(*yellowLed));
+  greenChar->setCallbacks(new LedWriteCallback(*greenLed));
+  rgbChar->setCallbacks(new LedWriteCallback(*rgbLed));
 
   // Start service and advertising
   pService->start();
@@ -162,8 +229,9 @@ void setup() {
 
 void loop() {
   if (redLed) redLed->update();
-  if (greenLed) greenLed->update();
   if (yellowLed) yellowLed->update();
+  if (greenLed) greenLed->update();
+  if (rgbLed) rgbLed->update();
 }
 
 // Cleanup on reset
@@ -179,4 +247,5 @@ void cleanup() {
   delete redLed;
   delete greenLed;
   delete yellowLed;
+  delete rgbLed;
 }
