@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_blue_plus_playground/blocs/led/led_cubit.dart';
 import 'package:flutter_blue_plus_playground/blocs/led/led_state.dart';
 import 'package:flutter_blue_plus_playground/models/led.dart';
+import 'package:flutter_blue_plus_playground/factories/led_ui_factory.dart';
 
 class LedControlWidget extends StatelessWidget {
   final LED led;
@@ -25,14 +26,8 @@ class _LEDControlContent extends StatelessWidget {
   Widget build(BuildContext context) {
     context.read<LEDCubit>().readAndSetLEDState();
     final state = context.watch<LEDCubit>().state;
-    return ListTile(
-      title: Text(state.led.name),
-      trailing: Switch(
-        thumbColor: WidgetStateProperty.all(state.led.color),
-        trackColor: WidgetStateProperty.all(Colors.white10),
-        value: state.isOn,
-        onChanged: (value) => context.read<LEDCubit>().toggle(value),
-      ),
-    );
+    
+    // Use the LED UI factory to build the appropriate UI
+    return LedUIFactory.buildUI(state.led);
   }
 }

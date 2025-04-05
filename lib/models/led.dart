@@ -1,4 +1,3 @@
-import 'dart:ui' show Color;
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart' show BluetoothCharacteristic;
 
@@ -73,7 +72,7 @@ class LEDRed extends LED {
   LEDRed(BluetoothCharacteristic characteristic)
       : super(
           color: const Color(0xFFFF0000),
-          name: '🔴 Red LED',
+          name: 'Red LED',
           characteristic: characteristic,
         );
 }
@@ -82,7 +81,7 @@ class LEDGreen extends LED {
   LEDGreen(BluetoothCharacteristic characteristic)
       : super(
           color: const Color(0xFF00FF00),
-          name: '🟢 Green LED',
+          name: 'Green LED',
           characteristic: characteristic,
         );
 }
@@ -91,7 +90,7 @@ class LEDYellow extends LED {
   LEDYellow(BluetoothCharacteristic characteristic)
       : super(
           color: const Color(0xFFFFFF00),
-          name: '🟡 Yellow LED',
+          name: 'Yellow LED',
           characteristic: characteristic,
         );
 }
@@ -102,7 +101,7 @@ class LEDRGB extends LED {
   LEDRGB(BluetoothCharacteristic characteristic)
       : super(
           color: const Color(0xFFFFFFFF),
-          name: '🌈 RGB LED',
+          name: 'RGB LED',
           characteristic: characteristic,
         );
   

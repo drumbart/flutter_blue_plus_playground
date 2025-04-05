@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_blue_plus_playground/blocs/led/led_cubit.dart';
+import 'package:flutter_blue_plus_playground/blocs/led/led_state.dart';
 import 'package:flutter_blue_plus_playground/models/led.dart';
 
 /// Factory class for creating UI widgets for different LED types
@@ -14,51 +17,59 @@ class LedUIFactory {
 
   /// Builds a standard UI for single-color LEDs
   static Widget _buildStandardLedUI(LED led) {
-    return ListTile(
-      leading: Icon(
-        led.isOn ? Icons.lightbulb : Icons.lightbulb_outline,
-        color: led.color,
-      ),
-      title: Text(led.name),
-      trailing: Switch(
-        value: led.isOn,
-        onChanged: (value) => led.setState(value),
-        activeColor: led.color,
-      ),
+    return BlocBuilder<LEDCubit, LEDState>(
+      builder: (context, state) {
+        return ListTile(
+          leading: Icon(
+            state.isOn ? Icons.lightbulb : Icons.lightbulb_outline,
+            color: led.color,
+          ),
+          title: Text(led.name),
+          trailing: Switch(
+            value: state.isOn,
+            onChanged: (value) => context.read<LEDCubit>().toggle(value),
+            activeColor: led.color,
+          ),
+        );
+      },
     );
   }
 
   /// Builds a UI for RGB LEDs with color picker
   static Widget _buildRGBLedUI(LEDRGB led) {
-    return ExpansionTile(
-      leading: Icon(
-        led.isOn ? Icons.lightbulb : Icons.lightbulb_outline,
-        color: led.selectedColor,
-      ),
-      title: Text(led.name),
-      trailing: Switch(
-        value: led.isOn,
-        onChanged: (value) => led.setState(value),
-        activeColor: led.selectedColor,
-      ),
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Select Color:'),
-              const SizedBox(height: 8),
-              ColorPicker(
-                color: led.selectedColor,
-                onColorChanged: (color) {
-                  led.updateColor(color);
-                },
-              ),
-            ],
+    return BlocBuilder<LEDCubit, LEDState>(
+      builder: (context, state) {
+        return ExpansionTile(
+          leading: Icon(
+            state.isOn ? Icons.lightbulb : Icons.lightbulb_outline,
+            color: led.selectedColor,
           ),
-        ),
-      ],
+          title: Text(led.name),
+          trailing: Switch(
+            value: state.isOn,
+            onChanged: (value) => context.read<LEDCubit>().toggle(value),
+            activeColor: led.selectedColor,
+          ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Select Color:'),
+                  const SizedBox(height: 8),
+                  ColorPicker(
+                    color: led.selectedColor,
+                    onColorChanged: (color) {
+                      led.updateColor(color);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -69,10 +80,10 @@ class ColorPicker extends StatefulWidget {
   final ValueChanged<Color> onColorChanged;
 
   const ColorPicker({
-    Key? key,
+    super.key,
     required this.color,
     required this.onColorChanged,
-  }) : super(key: key);
+  });
 
   @override
   State<ColorPicker> createState() => _ColorPickerState();
@@ -104,19 +115,19 @@ class _ColorPickerState extends State<ColorPicker> {
         // RGB sliders
         _buildSlider('Red', _color.r.toDouble(), (value) {
           setState(() {
-            _color = Color.fromARGB(255, value.round(), _color.g.toInt(), _color.b.toInt());
+            _color = Color.fromARGB(255, value.round().toInt(), _color.g.toInt(), _color.b.toInt());
             widget.onColorChanged(_color);
           });
         }),
         _buildSlider('Green', _color.g.toDouble(), (value) {
           setState(() {
-            _color = Color.fromARGB(255, _color.r.toInt(), value.round(), _color.b.toInt());
+            _color = Color.fromARGB(255, _color.r.toInt(), value.round().toInt(), _color.b.toInt());
             widget.onColorChanged(_color);
           });
         }),
         _buildSlider('Blue', _color.b.toDouble(), (value) {
           setState(() {
-            _color = Color.fromARGB(255, _color.r.toInt(), _color.g.toInt(), value.round());
+            _color = Color.fromARGB(255, _color.r.toInt(), _color.g.toInt(), value.round().toInt());
             widget.onColorChanged(_color);
           });
         }),
