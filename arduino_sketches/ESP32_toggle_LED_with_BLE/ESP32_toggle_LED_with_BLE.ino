@@ -6,7 +6,7 @@
 #define RED_LED_CHAR_UUID    "ff000000-1234-5678-1234-56789abcdef0"
 #define GREEN_LED_CHAR_UUID  "00ff0000-1234-5678-1234-56789abcdef0"
 #define YELLOW_LED_CHAR_UUID "ffff0000-1234-5678-1234-56789abcdef0"
-#define RGB_LED_CHAR_UUID    "ffffff00-1234-5678-1234-56789abcdef0"
+#define RGB_LED_CHAR_UUID    "ffffffff-1234-5678-1234-56789abcdef0"
 
 // Pin Configuration
 const int redButtonPin = 4;

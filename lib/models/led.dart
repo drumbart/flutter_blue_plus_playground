@@ -3,8 +3,9 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart' show BluetoothCharacte
 
 Map<String, Type> ledCharacteristicMap = {
   'ff000000-1234-5678-1234-56789abcdef0': LEDRed,
-  '00ff0000-1234-5678-1234-56789abcdef0': LEDGreen,
   'ffff0000-1234-5678-1234-56789abcdef0': LEDYellow,
+  '00ff0000-1234-5678-1234-56789abcdef0': LEDGreen,
+  'ffffffff-1234-5678-1234-56789abcdef0': LEDRGB,
 };
 
 abstract class LED {
@@ -19,6 +20,8 @@ abstract class LED {
       return LEDGreen(characteristic);
     } else if (type == LEDYellow) {
       return LEDYellow(characteristic);
+    } else if (type == LEDRGB) {
+      return LEDRGB(characteristic);
     }
     throw Exception('Unknown LED type: $type');
   }
@@ -66,6 +69,15 @@ class LEDYellow extends LED {
       : super(
           color: const Color(0xFFFFFF00),
           name: '🟡 Yellow LED',
+          characteristic: characteristic,
+        );
+}
+
+class LEDRGB extends LED {
+  LEDRGB(BluetoothCharacteristic characteristic)
+      : super(
+          color: const Color(0xFFFFFFFF),
+          name: '🌈 RGB LED',
           characteristic: characteristic,
         );
 }
