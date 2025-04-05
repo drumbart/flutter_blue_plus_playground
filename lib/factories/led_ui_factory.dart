@@ -106,9 +106,9 @@ class _ColorPickerState extends State<ColorPicker> {
   void initState() {
     super.initState();
     _color = widget.color;
-    _redValue = _color.red.toDouble();
-    _greenValue = _color.green.toDouble();
-    _blueValue = _color.blue.toDouble();
+    _redValue = _color.r.toDouble();
+    _greenValue = _color.g.toDouble();
+    _blueValue = _color.b.toDouble();
   }
   
   @override
@@ -116,9 +116,9 @@ class _ColorPickerState extends State<ColorPicker> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.color != widget.color) {
       _color = widget.color;
-      _redValue = _color.red.toDouble();
-      _greenValue = _color.green.toDouble();
-      _blueValue = _color.blue.toDouble();
+      _redValue = _color.r.toDouble();
+      _greenValue = _color.g.toDouble();
+      _blueValue = _color.b.toDouble();
     }
   }
 
@@ -250,9 +250,9 @@ class _ColorPickerState extends State<ColorPicker> {
       onTap: () {
         setState(() {
           _color = color;
-          _redValue = color.red.toDouble();
-          _greenValue = color.green.toDouble();
-          _blueValue = color.blue.toDouble();
+          _redValue = color.r.toDouble();
+          _greenValue = color.g.toDouble();
+          _blueValue = color.b.toDouble();
           widget.onColorChanged(_color);
         });
       },

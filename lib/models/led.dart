@@ -122,7 +122,7 @@ class LEDRGB extends LED {
     
     if (isOn) {
       // When turning on, send the current color
-      await _writeState([1, selectedColor.red.toInt(), selectedColor.green.toInt(), selectedColor.blue.toInt()]);
+      await _writeState([1, selectedColor.r.toInt(), selectedColor.g.toInt(), selectedColor.b.toInt()]);
     } else {
       // When turning off, just send 0
       await _writeState([0]);
@@ -140,7 +140,7 @@ class LEDRGB extends LED {
       } else {
         // If no data provided, use the current state
         if (isOn) {
-          await characteristic.write([1, selectedColor.red.toInt(), selectedColor.green.toInt(), selectedColor.blue.toInt()]);
+          await characteristic.write([1, selectedColor.r.toInt(), selectedColor.g.toInt(), selectedColor.b.toInt()]);
         } else {
           await characteristic.write([0]);
         }
@@ -152,7 +152,7 @@ class LEDRGB extends LED {
   
   // Method to update the selected color
   Future<void> updateColor(Color color) async {
-    debugPrint('updateColor called with color: R=${color.red}, G=${color.green}, B=${color.blue}');
+    debugPrint('updateColor called with color: R=${color.r}, G=${color.g}, B=${color.b}');
     
     // Store the new color
     selectedColor = color;
@@ -161,10 +161,10 @@ class LEDRGB extends LED {
     try {
       // Send RGB values to the ESP32
       // Format: [1, R, G, B] where R, G, B are values from 0-255
-      final data = [1, color.red.toInt(), color.green.toInt(), color.blue.toInt()];
+      final data = [1, color.r.toInt(), color.g.toInt(), color.b.toInt()];
       debugPrint('Sending data to ESP32: $data');
       await characteristic.write(data);
-      debugPrint('Successfully sent RGB color: R=${color.red}, G=${color.green}, B=${color.blue}');
+      debugPrint('Successfully sent RGB color: R=${color.r}, G=${color.g}, B=${color.b}');
     } catch (e) {
       debugPrint('Error sending RGB color to ESP32: $e');
     }
