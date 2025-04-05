@@ -120,38 +120,51 @@ private:
 public:
   RgbFullLed(int btnPin, int rPin, int gPin, int bPin, BLECharacteristic* char_) 
     : RgbLed(btnPin, char_), redPin(rPin), greenPin(gPin), bluePin(bPin) {
+    // Configure pins for digital output
     pinMode(redPin, OUTPUT);
     pinMode(greenPin, OUTPUT);
     pinMode(bluePin, OUTPUT);
+    
     setState(false);
   }
 
   void setState(bool state) override {
     ledState = state;  // Update the ledState variable
     if (state) {
-      // Use PWM to set the RGB values
-      analogWrite(redPin, redValue);
-      analogWrite(greenPin, greenValue);
-      analogWrite(bluePin, blueValue);
+      // Use digital output to set the RGB values
+      // For digital output, we'll use a threshold to determine if a color component is on or off
+      digitalWrite(redPin, redValue > 127 ? HIGH : LOW);
+      digitalWrite(greenPin, greenValue > 127 ? HIGH : LOW);
+      digitalWrite(bluePin, blueValue > 127 ? HIGH : LOW);
     } else {
       // Turn off all LEDs
-      analogWrite(redPin, 0);
-      analogWrite(greenPin, 0);
-      analogWrite(bluePin, 0);
+      digitalWrite(redPin, LOW);
+      digitalWrite(greenPin, LOW);
+      digitalWrite(bluePin, LOW);
     }
   }
   
   // Set RGB color values
   void setColor(uint8_t red, uint8_t green, uint8_t blue) {
+    Serial.printf("setColor called with: R=%d, G=%d, B=%d\n", red, green, blue);
+    
     redValue = red;
     greenValue = green;
     blueValue = blue;
     
     // If LED is on, update the color immediately
     if (ledState) {
-      analogWrite(redPin, redValue);
-      analogWrite(greenPin, greenValue);
-      analogWrite(bluePin, blueValue);
+      Serial.println("LED is ON, applying color immediately");
+      // For digital output, we'll use a threshold to determine if a color component is on or off
+      digitalWrite(redPin, redValue > 127 ? HIGH : LOW);
+      digitalWrite(greenPin, greenValue > 127 ? HIGH : LOW);
+      digitalWrite(bluePin, blueValue > 127 ? HIGH : LOW);
+      Serial.printf("Applied digital values: R=%s, G=%s, B=%s\n", 
+                   redValue > 127 ? "HIGH" : "LOW",
+                   greenValue > 127 ? "HIGH" : "LOW",
+                   blueValue > 127 ? "HIGH" : "LOW");
+    } else {
+      Serial.println("LED is OFF, color will be applied when turned on");
     }
     
     Serial.printf("RGB LED color set to: R=%d, G=%d, B=%d\n", red, green, blue);
@@ -181,9 +194,11 @@ public:
   
   void onWrite(BLECharacteristic *pCharacteristic) override {
     String value = pCharacteristic->getValue();
+    Serial.printf("Received BLE write: %s, length: %d\n", value.c_str(), value.length());
     
     // Check if this is an RGB LED
     if (isRgbLed) {
+      Serial.println("Processing RGB LED data");
       // Handle RGB LED data
       if (value.length() >= 4) {
         // Get the raw data from the String
@@ -191,6 +206,8 @@ public:
         for (int i = 0; i < 4; i++) {
           data[i] = (uint8_t)value[i];
         }
+        
+        Serial.printf("RGB data: [%d, %d, %d, %d]\n", data[0], data[1], data[2], data[3]);
         
         // First byte is the command (1 for color update, 0 for off)
         if (data[0] == 1) {
@@ -208,12 +225,16 @@ public:
         // Handle simple toggle for RGB LED
         led.setState(value == "1");
         Serial.printf("RGB LED %s\n", value == "1" ? "ON" : "OFF");
+      } else {
+        Serial.printf("Unexpected RGB LED data format: %s\n", value.c_str());
       }
     } else {
       // Handle standard LED (on/off only)
       if (value == "1" || value == "0") {
         led.setState(value == "1");
         Serial.printf("Standard LED %s\n", value == "1" ? "ON" : "OFF");
+      } else {
+        Serial.printf("Unexpected standard LED data format: %s\n", value.c_str());
       }
     }
   }

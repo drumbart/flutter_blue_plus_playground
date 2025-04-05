@@ -32,6 +32,7 @@ abstract class LED {
   // Toggle the LED state
   Future<void> toggle() async {
     isOn = !isOn;
+    debugPrint('LED $name toggled to: ${isOn ? "ON" : "OFF"}');
     await _writeState();
   }
 
@@ -42,11 +43,19 @@ abstract class LED {
   }
 
   // Write the current state to the BLE characteristic
-  Future<void> _writeState() async {
+  Future<void> _writeState([List<int>? data]) async {
     try {
-      await characteristic.write([isOn ? 1 : 0]);
+      if (data != null) {
+        // If data is provided, write it directly (for RGB color updates)
+        debugPrint('Writing data to characteristic: $data');
+        await characteristic.write(data);
+      } else {
+        // Otherwise, write the current state (on/off)
+        debugPrint('Writing state to characteristic: ${isOn ? "1" : "0"}');
+        await characteristic.write(isOn ? [1] : [0]);
+      }
     } catch (e) {
-      debugPrint('Error writing to LED: $e');
+      debugPrint('Error writing to characteristic: $e');
     }
   }
 
@@ -105,22 +114,36 @@ class LEDRGB extends LED {
           characteristic: characteristic,
         );
   
+  // Override the toggle method to handle RGB LED specifically
+  @override
+  Future<void> toggle() async {
+    isOn = !isOn;
+    debugPrint('RGB LED toggled to: ${isOn ? "ON" : "OFF"}');
+    
+    if (isOn) {
+      // When turning on, send the current color
+      await _writeState([1, selectedColor.red.toInt(), selectedColor.green.toInt(), selectedColor.blue.toInt()]);
+    } else {
+      // When turning off, just send 0
+      await _writeState([0]);
+    }
+  }
+  
   // Override the _writeState method to handle RGB color
   @override
-  Future<void> _writeState() async {
+  Future<void> _writeState([List<int>? data]) async {
     try {
-      if (isOn) {
-        // Send the current RGB color when turning on
-        await characteristic.write([
-          1, // Indicates this is a color update
-          selectedColor.red,
-          selectedColor.green,
-          selectedColor.blue,
-        ]);
-        debugPrint('Sent RGB color on toggle: R=${selectedColor.red}, G=${selectedColor.green}, B=${selectedColor.blue}');
+      if (data != null) {
+        // If data is provided, write it directly
+        debugPrint('Writing RGB data to characteristic: $data');
+        await characteristic.write(data);
       } else {
-        // Just send 0 to turn off the LED
-        await characteristic.write([0]);
+        // If no data provided, use the current state
+        if (isOn) {
+          await characteristic.write([1, selectedColor.red.toInt(), selectedColor.green.toInt(), selectedColor.blue.toInt()]);
+        } else {
+          await characteristic.write([0]);
+        }
       }
     } catch (e) {
       debugPrint('Error writing to RGB LED: $e');
@@ -129,23 +152,21 @@ class LEDRGB extends LED {
   
   // Method to update the selected color
   Future<void> updateColor(Color color) async {
+    debugPrint('updateColor called with color: R=${color.red}, G=${color.green}, B=${color.blue}');
+    
+    // Store the new color
     selectedColor = color;
     
-    // Only send the color if the LED is on
-    if (isOn) {
-      try {
-        // Send RGB values to the ESP32
-        // Format: [1, R, G, B] where R, G, B are values from 0-255
-        await characteristic.write([
-          1, // Indicates this is a color update
-          color.red,
-          color.green,
-          color.blue,
-        ]);
-        debugPrint('Sent RGB color: R=${color.red}, G=${color.green}, B=${color.blue}');
-      } catch (e) {
-        debugPrint('Error sending RGB color to ESP32: $e');
-      }
+    // Send the color data to the ESP32 regardless of LED state
+    try {
+      // Send RGB values to the ESP32
+      // Format: [1, R, G, B] where R, G, B are values from 0-255
+      final data = [1, color.red.toInt(), color.green.toInt(), color.blue.toInt()];
+      debugPrint('Sending data to ESP32: $data');
+      await characteristic.write(data);
+      debugPrint('Successfully sent RGB color: R=${color.red}, G=${color.green}, B=${color.blue}');
+    } catch (e) {
+      debugPrint('Error sending RGB color to ESP32: $e');
     }
   }
 }
