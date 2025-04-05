@@ -113,6 +113,9 @@ private:
   const int redPin;
   const int greenPin;
   const int bluePin;
+  uint8_t redValue = 255;
+  uint8_t greenValue = 255;
+  uint8_t blueValue = 255;
 
 public:
   RgbFullLed(int btnPin, int rPin, int gPin, int bPin, BLECharacteristic* char_) 
@@ -124,15 +127,34 @@ public:
   }
 
   void setState(bool state) override {
+    ledState = state;  // Update the ledState variable
     if (state) {
-      digitalWrite(redPin, HIGH);
-      digitalWrite(greenPin, HIGH);
-      digitalWrite(bluePin, HIGH);
+      // Use PWM to set the RGB values
+      analogWrite(redPin, redValue);
+      analogWrite(greenPin, greenValue);
+      analogWrite(bluePin, blueValue);
     } else {
-      digitalWrite(redPin, LOW);
-      digitalWrite(greenPin, LOW);
-      digitalWrite(bluePin, LOW);
+      // Turn off all LEDs
+      analogWrite(redPin, 0);
+      analogWrite(greenPin, 0);
+      analogWrite(bluePin, 0);
     }
+  }
+  
+  // Set RGB color values
+  void setColor(uint8_t red, uint8_t green, uint8_t blue) {
+    redValue = red;
+    greenValue = green;
+    blueValue = blue;
+    
+    // If LED is on, update the color immediately
+    if (ledState) {
+      analogWrite(redPin, redValue);
+      analogWrite(greenPin, greenValue);
+      analogWrite(bluePin, blueValue);
+    }
+    
+    Serial.printf("RGB LED color set to: R=%d, G=%d, B=%d\n", red, green, blue);
   }
 };
 
@@ -152,14 +174,47 @@ class MyServerCallbacks : public BLEServerCallbacks {
 
 class LedWriteCallback : public BLECharacteristicCallbacks {
   RgbLed& led;
+  bool isRgbLed;
 public:
-  LedWriteCallback(RgbLed& ledRef) : led(ledRef) {}
+  LedWriteCallback(RgbLed& ledRef, bool isRgb = false) 
+    : led(ledRef), isRgbLed(isRgb) {}
   
   void onWrite(BLECharacteristic *pCharacteristic) override {
     String value = pCharacteristic->getValue();
-    if (value == "1" || value == "0") {
-      led.setState(value == "1");
-      Serial.printf("BLE wrote to LED: %s\n", value == "1" ? "ON" : "OFF");
+    
+    // Check if this is an RGB LED
+    if (isRgbLed) {
+      // Handle RGB LED data
+      if (value.length() >= 4) {
+        // Get the raw data from the String
+        uint8_t data[4];
+        for (int i = 0; i < 4; i++) {
+          data[i] = (uint8_t)value[i];
+        }
+        
+        // First byte is the command (1 for color update, 0 for off)
+        if (data[0] == 1) {
+          // Next 3 bytes are RGB values
+          RgbFullLed* rgbLed = (RgbFullLed*)&led;
+          rgbLed->setColor(data[1], data[2], data[3]);
+          led.setState(true);
+          Serial.printf("RGB LED color update: R=%d, G=%d, B=%d\n", data[1], data[2], data[3]);
+        } else if (data[0] == 0) {
+          // Turn off the LED
+          led.setState(false);
+          Serial.println("RGB LED turned OFF");
+        }
+      } else if (value == "1" || value == "0") {
+        // Handle simple toggle for RGB LED
+        led.setState(value == "1");
+        Serial.printf("RGB LED %s\n", value == "1" ? "ON" : "OFF");
+      }
+    } else {
+      // Handle standard LED (on/off only)
+      if (value == "1" || value == "0") {
+        led.setState(value == "1");
+        Serial.printf("Standard LED %s\n", value == "1" ? "ON" : "OFF");
+      }
     }
   }
 };
@@ -226,7 +281,7 @@ void setup() {
   redChar->setCallbacks(new LedWriteCallback(*redLed));
   yellowChar->setCallbacks(new LedWriteCallback(*yellowLed));
   greenChar->setCallbacks(new LedWriteCallback(*greenLed));
-  rgbChar->setCallbacks(new LedWriteCallback(*rgbLed));
+  rgbChar->setCallbacks(new LedWriteCallback(*rgbLed, true));
 
   // Start service and advertising
   pService->start();

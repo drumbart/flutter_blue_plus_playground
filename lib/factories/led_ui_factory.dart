@@ -40,6 +40,7 @@ class LedUIFactory {
     return BlocBuilder<LEDCubit, LEDState>(
       builder: (context, state) {
         return ExpansionTile(
+          initiallyExpanded: true,
           leading: Icon(
             state.isOn ? Icons.lightbulb : Icons.lightbulb_outline,
             color: led.selectedColor,
@@ -60,8 +61,8 @@ class LedUIFactory {
                   const SizedBox(height: 8),
                   ColorPicker(
                     color: led.selectedColor,
-                    onColorChanged: (color) {
-                      led.updateColor(color);
+                    onColorChanged: (color) async {
+                      await led.updateColor(color);
                     },
                   ),
                 ],

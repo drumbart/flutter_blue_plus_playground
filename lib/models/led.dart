@@ -110,10 +110,16 @@ class LEDRGB extends LED {
   Future<void> _writeState() async {
     try {
       if (isOn) {
-        // For now, we'll just send the on/off state
-        // Later we'll update the Arduino code to handle RGB values
-        await characteristic.write([1]);
+        // Send the current RGB color when turning on
+        await characteristic.write([
+          1, // Indicates this is a color update
+          selectedColor.red,
+          selectedColor.green,
+          selectedColor.blue,
+        ]);
+        debugPrint('Sent RGB color on toggle: R=${selectedColor.red}, G=${selectedColor.green}, B=${selectedColor.blue}');
       } else {
+        // Just send 0 to turn off the LED
         await characteristic.write([0]);
       }
     } catch (e) {
@@ -122,8 +128,24 @@ class LEDRGB extends LED {
   }
   
   // Method to update the selected color
-  void updateColor(Color color) {
+  Future<void> updateColor(Color color) async {
     selectedColor = color;
-    // We'll implement color sending to the Arduino later
+    
+    // Only send the color if the LED is on
+    if (isOn) {
+      try {
+        // Send RGB values to the ESP32
+        // Format: [1, R, G, B] where R, G, B are values from 0-255
+        await characteristic.write([
+          1, // Indicates this is a color update
+          color.red,
+          color.green,
+          color.blue,
+        ]);
+        debugPrint('Sent RGB color: R=${color.red}, G=${color.green}, B=${color.blue}');
+      } catch (e) {
+        debugPrint('Error sending RGB color to ESP32: $e');
+      }
+    }
   }
 }
