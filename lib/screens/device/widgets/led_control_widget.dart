@@ -28,6 +28,8 @@ class _LEDControlContent extends StatelessWidget {
     return ListTile(
       title: Text(state.led.name),
       trailing: Switch(
+        thumbColor: WidgetStateProperty.all(state.led.color),
+        trackColor: WidgetStateProperty.all(Colors.white10),
         value: state.isOn,
         onChanged: (value) => context.read<LEDCubit>().toggle(value),
       ),
