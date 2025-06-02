@@ -23,10 +23,13 @@ class DevicesCubit extends Cubit<DevicesState> {
       (results) => emit(state.copyWith(
         bleDevices: _sortDevices(results.map((e) => BleDevice.fromScanResult(e)).toList()),
       )),
-      onError: (error) => emit(state.copyWith(
+      onError: (error) {
+        print('Error in scan results stream: $error');
+        emit(state.copyWith(
         error: error.toString(),
         connectionState: ConnectionState.error,
-      )),
+      ));
+      },
     );
 
     bleService.connectedDeviceStream.listen(
