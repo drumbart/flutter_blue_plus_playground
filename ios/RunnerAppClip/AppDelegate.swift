@@ -13,7 +13,7 @@ import Flutter
     lazy var flutterEngine = FlutterEngine(name: "my_flutter_engine")
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        flutterEngine.run();
+        flutterEngine.run(withEntrypoint: "main", initialRoute: "/");
         GeneratedPluginRegistrant.register(with: self.flutterEngine)
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
