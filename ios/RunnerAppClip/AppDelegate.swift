@@ -10,11 +10,11 @@ import Flutter
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
-    lazy var flutterEngine = FlutterEngine(name: "my_flutter_engine")
+//    lazy var flutterEngine = FlutterEngine(name: "my_flutter_engine")
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        flutterEngine.run(withEntrypoint: "main", initialRoute: "/");
-        GeneratedPluginRegistrant.register(with: self.flutterEngine)
+//        flutterEngine.run(withEntrypoint: "appClipMain", libraryURI: "main_app_clip.dart");
+        GeneratedPluginRegistrant.register(with: self)
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
 }

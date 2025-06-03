@@ -6,11 +6,16 @@ import 'package:flutter_blue_plus_playground/navigation/router.dart';
 import 'package:flutter_blue_plus_playground/services/ble_service.dart';
 import 'package:flutter_blue_plus_playground/theme/theme.dart';
 
-void main() async {
+@pragma('vm:entry-point')
+void appClipMain() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Initialize Flutter Blue Plus
-  await FlutterBluePlus.turnOn();
+  try {
+    await FlutterBluePlus.turnOn();
+  } catch (e) {
+    print('Error initializing Flutter Blue Plus: $e');
+  }
   
   runApp(const BLEApp());
 }
@@ -28,4 +33,4 @@ class BLEApp extends StatelessWidget {
       ),
     );
   }
-}
+} 
