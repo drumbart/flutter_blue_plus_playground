@@ -43,12 +43,4 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-ios/build/ios/XCBuildData/PIFCache/project/PROJECT@v11_mod=92c65c740533051a3f11c5e37cb7164f_hash=bfdfe7dc352907fc980b868725387e98plugins=1OJSG6M1FOV3XYQCBH7Z29RZ0FPR9XDE1-json
-ios/build/ios/XCBuildData/PIFCache/target/TARGET@v11_hash=222073cbd229215b731fe208d109c5a3-json
-ios/build/ios/XCBuildData/PIFCache/target/TARGET@v11_hash=37f16c7cb4f1c22f60c54b83d38babb0-json
-ios/build/ios/XCBuildData/PIFCache/target/TARGET@v11_hash=4e4126d6dadcbb0df851cf750e3e9872-json
-ios/build/ios/XCBuildData/PIFCache/target/TARGET@v11_hash=568eb3eddcb0ffa00288ebf7dc4ae94f-json
-ios/build/ios/XCBuildData/PIFCache/target/TARGET@v11_hash=9daf062bbb9fef411000a842bb47b19e-json
-ios/build/ios/XCBuildData/PIFCache/target/TARGET@v11_hash=b381767a65dd7338f15fb427c7b5bcdc-json
-ios/build/ios/XCBuildData/PIFCache/target/TARGET@v11_hash=d8d5ad49df6272295b10f09ec9c0b9e5-json
-ios/build/ios/XCBuildData/PIFCache/workspace/WORKSPACE@v11_hash=(null)_subobjects=27acfc272db8f539e6e28eeec52ebb4e-json
+/ios/build/
