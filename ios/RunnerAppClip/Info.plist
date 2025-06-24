@@ -9,5 +9,9 @@
 		<key>NSAppClipRequestLocationConfirmation</key>
 		<false/>
 	</dict>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>We use Bluetooth to communicate with devices</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>We use Bluetooth to communicate with devices</string>
 </dict>
 </plist>

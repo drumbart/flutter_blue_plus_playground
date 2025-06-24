@@ -10,12 +10,22 @@ import Flutter
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
-    lazy var flutterEngine = FlutterEngine(name: "RunnerAppClipEngine")
-
+    
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        flutterEngine.run(withEntrypoint: "appClipMain");
-        GeneratedPluginRegistrant.register(with: self.flutterEngine)
-//        GeneratedPluginRegistrant.register(with: self)
+        
+        // Create custom Flutter engine with our entry point
+        let flutterEngine = FlutterEngine(name: "RunnerAppClipEngine")
+        flutterEngine.run(withEntrypoint: "appClipMain")
+        GeneratedPluginRegistrant.register(with: flutterEngine)
+        
+        // Create FlutterViewController with our custom engine
+        let flutterViewController = FlutterViewController(engine: flutterEngine, nibName: nil, bundle: nil)
+        
+        // Set up the window and root view controller
+        self.window = UIWindow(frame: UIScreen.main.bounds)
+        self.window.rootViewController = flutterViewController
+        self.window.makeKeyAndVisible()
+        
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
 }
