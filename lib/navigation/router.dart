@@ -5,7 +5,7 @@ import 'package:flutter_blue_plus_playground/screens/home/home_screen.dart';
 import 'package:go_router/go_router.dart';
 
 enum NavigationState {
-  homeScreen("/homeScreen"),
+  homeScreen("/"),
   deviceScreen("/deviceScreen");
 
   final String route;
