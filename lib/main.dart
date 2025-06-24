@@ -15,6 +15,20 @@ void main() async {
   runApp(const BLEApp());
 }
 
+@pragma('vm:entry-point')
+void appClipMain() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Flutter Blue Plus
+  try {
+    await FlutterBluePlus.turnOn();
+  } catch (e) {
+    print('Error initializing Flutter Blue Plus: $e');
+  }
+  
+  runApp(const BLEApp());
+}
+
 class BLEApp extends StatelessWidget {
   const BLEApp({super.key});
 

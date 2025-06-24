@@ -13,7 +13,7 @@ import Flutter
     lazy var flutterEngine = FlutterEngine(name: "RunnerAppClipEngine")
 
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        flutterEngine.run(withEntrypoint: "appClipMain", libraryURI: "main_app_clip.dart");
+        flutterEngine.run(withEntrypoint: "appClipMain");
         GeneratedPluginRegistrant.register(with: self.flutterEngine)
 //        GeneratedPluginRegistrant.register(with: self)
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
